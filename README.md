@@ -34,7 +34,7 @@
 ### 로컬 도구
 | 도구 | 버전 | 어디에 쓰나 | 확인 명령 |
 | --- | --- | --- | --- |
-| Node.js | 20 이상, LTS 권장(24) | CDK 실행 (`npx cdk`) | `node --version` |
+| Node.js | 20 이상 | CDK 실행 (`npx cdk`) | `node --version` |
 | AWS CLI | v2 | 자격증명 확인, 스택 출력값·VPN 프로필 조회 | `aws --version` |
 | Azure CLI (`az`) | - | Entra 앱·그룹 생성 ([1단계](docs/01-entra-id.md)) | `az version` |
 | `jq` | - | VPN 프로필 추출, 컨텍스트 파일 저장·복원 | `jq --version` |
@@ -47,11 +47,14 @@ AWS CDK CLI 는 따로 설치하지 않아도 됩니다. `cdk/package.json` 에 
 
 #### macOS
 > [!NOTE]
->  [Homebrew](https://brew.sh)를 통한 설치 방법입니다.
+> - [Homebrew](https://brew.sh)를 통한 설치 방법입니다.
+> - 이미 설치되어 있을 경우 스킵할 수 있습니다.
+
+1. nodejs, awscli, azure-cli, jq 패키지 설치
 ```bash
 brew install node awscli azure-cli jq
 ```
-
+2. docker desktop 패키지 설치
 ```bash
 brew install --cask docker-desktop
 ```
@@ -70,7 +73,6 @@ winget install --id OpenJS.NodeJS.LTS -e
 winget install --id Amazon.AWSCLI -e
 winget install --id Microsoft.AzureCLI -e
 winget install --id jqlang.jq -e
-winget install --id Amazon.AWSVPNClient -e
 winget install --id Docker.DockerDesktop -e
 ```
 
