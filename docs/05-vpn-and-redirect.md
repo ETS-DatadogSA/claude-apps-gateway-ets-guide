@@ -13,10 +13,14 @@ VPN 프로필은 배포가 만들어 Secrets Manager 에 넣어 둡니다. 내�
 aws secretsmanager get-secret-value --secret-id "$(aws cloudformation describe-stacks --stack-name ClaudeGatewayVpnStack --query "Stacks[0].Outputs[?OutputKey=='VpnClientProfileSecretArn'].OutputValue" --output text)" --query SecretString --output text | jq -r .ovpnProfile > claude-gateway-vpn-client.ovpn
 ```
 
-1. [AWS VPN Client](https://docs.aws.amazon.com/vpn/latest/clientvpn-user/user-getting-started.html) 를 설치합니다. 프로필은
-   인증서가 파일 안에 들어 있는 표준 OpenVPN 형식이라, 다른 표준 OpenVPN 클라이언트도 쓸 수 있습니다.
-2. File → Manage Profiles → Add Profile 로 `claude-gateway-vpn-client.ovpn` 을 추가합니다.
-3. 프로필을 선택하고 Connect 를 누릅니다.
+1. [OpenVPN Connect](https://openvpn.net/client/) 를 설치합니다. 프로필은 인증서와 키가 파일 안에 들어 있는 표준 OpenVPN
+   형식이라 따로 챙길 인증서 파일이 없습니다.
+2. OpenVPN Connect 에서 프로필 가져오기(Import Profile)로 `claude-gateway-vpn-client.ovpn` 파일을 불러옵니다.
+3. 가져온 프로필을 켜서 연결합니다.
+
+> [!NOTE]
+> 같은 `.ovpn` 파일을 AWS 가 배포하는 [AWS VPN Client](https://docs.aws.amazon.com/vpn/latest/clientvpn-user/user-getting-started.html)
+> 나 다른 표준 OpenVPN 클라이언트로 불러와도 됩니다.
 
 이 엔드포인트는 **split-tunnel** 입니다. VPC 로 가는 트래픽만 터널을 타고, 브라우저의 Entra 리다이렉트는 터널
 밖으로 나갑니다. full-tunnel 로 바꾸면 사인인이 오류 없이 멈춥니다.
