@@ -1,16 +1,18 @@
 # Claude Apps Gateway on AWS - Entra ID 기반 배포 가이드
+> [!NOTE]
+> Entra ID 연동의 경우 구성되어 있는 Entra의 환경에 따라 OIDC 연동 방법이 다를 수 있습니다. \
+> 해당 레포지터리의 Entra ID 연동의 경우 최소한의 구성을 기준으로 테스트 되었습니다.
 
 [aws-samples/sample-claude-apps-gateway-on-aws](https://github.com/aws-samples/sample-claude-apps-gateway-on-aws)를 **Microsoft Entra ID**를 IdP 로, **us-east-1** 리전에 배포하는 절차입니다. 결과물은 Amazon Bedrock 앞단의 Claude apps gateway, 관리 콘솔, 접속용 AWS Client VPN 입니다.
 
-원본 리포의 문서([docs/original/](docs/original/README.md))는 Okta 기준입니다. 이 가이드는 원본 문서의 내용을 옮기면서 Entra 로 갈 때 달라지는 지점과
-배포가 실제로 어디서 일어나는지를 더해, Entra 앱을 만드는 단계부터 끝까지 다룹니다.
-
-> [!NOTE]
-> Entra ID 연동의 경우 구성되어 있는 Entra의 환경에 따라 OIDC 연동 방법이 다를 수 있습니다.
-> 
-> 해당 레포지터리의 Entra ID 연동의 경우 최소한의 구성을 기준으로 테스트 되었습니다.
+원본 리포의 문서([docs/original/](docs/original/README.md))는 Okta 기준입니다. 이 가이드는 원본 문서의 내용을 옮기면서 Entra 로 갈 때 달라지는 지점과 배포가 실제로 어디서 일어나는지를 더해, Entra 앱을 만드는 단계부터 끝까지 다룹니다.
 
 ## 문서 순서
+
+> [!NOTE]
+> - 모든 단계는 같은 Shell에서 이어서 진행하는 것을 전제로 합니다.
+> - 앞 단계에서의 셸 변수 (`APP`, `SECRET`, `GRP`, `ISSUER`)를 차후 챕터에서도 활용합니다.
+> - 신규 Shell을 열었을 경우 [4. CDK 배포](docs/04-deploy.md#45-새-셸에서-변수-복원)의 복원 방법을 따릅니다.
 
 | 순서 | 문서 | 내용 |
 | --- | --- | --- |
@@ -24,12 +26,6 @@
 | 8 | [커스텀 추론 프로파일 (선택)](docs/08-custom-inference-profile.md) | 특정 모델을 application inference profile 로 보내기 |
 | 9 | [업데이트와 삭제](docs/09-update-and-cleanup.md) | 재배포, `cdk destroy`, Entra 정리 |
 | 10 | [문제 해결](docs/10-troubleshooting.md) | 증상별 원인과 조치 |
-
-
-> [!NOTE]
-> 1. 모든 단계는 같은 Shell에서 이어서 진행하는 것을 전제로 합니다.
-> 2. 앞 단계에서의 셸 변수 (`APP`, `SECRET`, `GRP`, `ISSUER`)를 차후 챕터에서도 활용합니다.
-> 3. 신규 Shell을 열었을 경우 [4. CDK 배포](docs/04-deploy.md#45-새-셸에서-변수-복원)의 복원 방법을 따릅니다.
 
 ## 어디서 배포하나
 
