@@ -1,8 +1,6 @@
 # Claude Apps Gateway on AWS — Entra ID 배포 가이드
 
-[aws-samples/sample-claude-apps-gateway-on-aws](https://github.com/aws-samples/sample-claude-apps-gateway-on-aws) 를
-**Microsoft Entra ID** 를 IdP 로, **us-east-1** 리전에 배포하는 절차입니다. 결과물은 Amazon Bedrock 앞단의
-Claude apps gateway, 관리 콘솔, 접속용 AWS Client VPN 입니다.
+[aws-samples/sample-claude-apps-gateway-on-aws](https://github.com/aws-samples/sample-claude-apps-gateway-on-aws)를 **Microsoft Entra ID** 를 IdP 로, **us-east-1** 리전에 배포하는 절차입니다. 결과물은 Amazon Bedrock 앞단의 Claude apps gateway, 관리 콘솔, 접속용 AWS Client VPN 입니다.
 
 업스트림 리포의 기본 문서([docs/upstream/](docs/upstream/README.md))는 Okta 기준입니다. 이 가이드는 Entra 로 갈 때 달라지는 지점과
 배포가 실제로 어디서 일어나는지를 중심으로, Entra 앱을 만드는 단계부터 끝까지 다룹니다.
