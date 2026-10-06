@@ -118,11 +118,15 @@ Claude Apps Gateway와 관리 콘솔은 이 클레임만 보고 관리자를 판
 }
 ```
 
-배포할 때 Admin Group 내의 GUID(1.5 의 `GRP`, 위 예시에서는 `2222bbbb-....`)를 아래 두 곳에 알려 줍니다. \
-로그인한 사용자의 `groups` 목록에 이 GUID 가 **있을 경우 관리자**, **없을 경우 일반 사용자**로 판단합니다.
+위 예시에서 `2222bbbb-....` 가 어드민 그룹(1.5 에서 만드는 그룹)의 GUID 라면 이 사용자는 관리자입니다. \
+게이트웨이와 관리 콘솔은 로그인한 사용자의 `groups` 목록에 어드민 그룹 GUID 가 **있으면 관리자**, **없으면 일반 사용자**로 판단합니다.
 
-- Claude Apps Gateway: `gateway/gateway.yaml` 의 `admin.admin_groups`
-- 관리 콘솔: `admin-console/app/auth.py` 의 `ADMIN_GROUP_NAME`
+비교 기준이 되는 어드민 그룹 GUID 는 배포 전에 각 설정에 넣어 둡니다.
+
+| 구성 요소 | 비교 기준 설정 | 값을 넣는 단계 |
+| --- | --- | --- |
+| Claude Apps Gateway | `gateway/gateway.yaml` 의 `admin.admin_groups` | [4단계](04-deploy.md) `-c adminOktaGroupName="$GRP"` |
+| 관리 콘솔 | `admin-console/app/auth.py` 의 `ADMIN_GROUP_NAME` | [3단계](03-configure-source.md) |
 
 Entra 는 기본값으로 토큰에 그룹을 넣지 않습니다. 토큰에 `groups` 항목이 아예 없으면 비교할 대상이 없으므로 모든 사용자가 일반 사용자가 됩니다. 이 단계를 건너뛰면 1.5 에서 어드민 그룹에 넣은 사용자도 [6단계](06-verify.md) 콘솔 사인인에서 비관리자로 표시됩니다.
 
@@ -141,7 +145,7 @@ az rest --method PATCH --url "https://graph.microsoft.com/v1.0/applications/$OBJ
 
 > [!IMPORTANT]
 > 토큰에 들어가는 값은 그룹 이름(`claude-gateway-admins`)이 아니라 그룹의 **object ID(GUID)** 입니다. \
-> 그래서 1.5 에서 그룹 GUID 를 `GRP` 로 받아 두고, 관리 콘솔에는 [3단계](03-configure-source.md), 게이트웨이에는 [4단계](04-deploy.md)의 `-c adminOktaGroupName` 으로 이름 대신 GUID 를 넣습니다.
+> 그래서 1.5 에서 그룹 이름이 아니라 GUID 를 `GRP` 로 받아 두고, 위 표의 두 설정에도 GUID 를 넣습니다.
 
 ## 1.4 client secret 생성
 
