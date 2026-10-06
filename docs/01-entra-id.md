@@ -192,12 +192,21 @@ Claude Apps Gateway는 로그인 처리 중 Entra ID 에 토큰을 요청할 때
 > [!CAUTION]
 > `--append` 를 빼면 이 앱의 기존 자격증명이 전부 삭제됩니다.
 
-**Client Secret 생성 명령어**
+### Client Secret 생성 명령어
 ```bash
 SECRET=$(az ad app credential reset --id "$APP" --append --display-name gateway --years 1 --query password -o tsv) && echo "secret 생성됨 (길이 ${#SECRET})"
 ```
 
 secret 값은 화면에 출력하지 않고 길이만 보여 줍니다.
+
+### Client Secret 생성 결과 예시
+```text
+WARNING: The output includes credentials that you must protect. Be sure that you do not include these credentials in your code or check the credentials into your source control. For more information, see https://aka.ms/azadsp-cli
+secret 생성됨 (길이 40)
+```
+
+`WARNING` 은 az 가 secret 을 만들 때마다 띄우는 고정 안내이며 오류가 아닙니다. 마지막 줄에 길이가 나오면 성공입니다. \
+secret 은 이 셸의 `$SECRET` 에만 있으므로 4.3 에서 저장할 때까지 셸을 닫지 않습니다.
 
 ## 1.5 어드민 그룹 생성
 
