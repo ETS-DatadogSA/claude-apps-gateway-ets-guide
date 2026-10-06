@@ -1,6 +1,7 @@
 # 1. Entra ID 앱 등록
 
-게이트웨이용 Entra 앱과 어드민 그룹을 만들고, 배포에 쓸 값을 셸 변수로 확보합니다. 모든 명령은 Azure CLI(`az`)로 실행합니다.
+Claude Apps Gateway용 Entra ID App과 Admin을 만들고, cdk 배포에 사용할 환경변수를 확보합니다. \
+모든 명령은 Azure CLI(`az`)로 실행합니다.
 
 | 변수 | 내용 | 쓰이는 곳 |
 | --- | --- | --- |
@@ -59,7 +60,8 @@ OBJ=$(az ad app show --id "$APP" --query id -o tsv) && echo "OBJ=$OBJ"
 az ad sp create --id "$APP"
 ```
 
-마지막 명령은 서비스 주체를 JSON 으로 출력합니다. `appId` 가 `APP` 과 같고 `replyUrls` 가 임시값이면 됩니다. 실행 결과(값은 가리고 JSON 은 일부만):
+마지막 명령은 서비스 주체를 JSON 으로 출력합니다. `appId` 가 `APP` 과 같고 `replyUrls` 가 임시값이면 됩니다. \
+하단의 예시는 실행 결과 예시입니다:
 
 ```json
 APP=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
@@ -86,7 +88,8 @@ OBJ=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy
 `OBJ`(앱 object ID)와 서비스 주체의 `id` 는 서로 다른 값입니다. 1.3 에는 `OBJ` 를 씁니다.
 
 포털 **Microsoft Entra ID → 관리 → 앱 등록 → 모든 애플리케이션**에도 앱이 보입니다. \
-같은 이름의 앱이 이미 있으면 `--display-name` 을 바꿔 구분합니다(아래 화면은 `Claude Apps Gateway Sample` 로 만든 경우).
+같은 이름의 앱이 이미 있으면 `--display-name` 인자의 파라미터를 변경하여 구분합니다. \
+(하단의 예시 이미지는 `Claude Apps Gateway Sample` 로 생성 하였습니다) 
 
 ![앱 등록 목록](images/01-app-registrations.png)
 
@@ -96,11 +99,31 @@ OBJ=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy
 
 ## 1.3 groups 클레임 활성화
 
-Entra 는 그룹을 optional claim 으로 토큰에 담고, 값은 그룹 이름이 아니라 **object ID(GUID)** 입니다.
+로그인 토큰에 사용자가 속한 그룹 목록(`groups` 클레임)을 넣도록 앱 설정을 바꿉니다.
+
+게이트웨이와 관리 콘솔은 이 클레임만 보고 관리자를 가립니다. 토큰의 `groups` 에 어드민 그룹이 있으면 관리자입니다.
+
+- 게이트웨이: `gateway/gateway.yaml` 의 `admin.admin_groups`
+- 관리 콘솔: `admin-console/app/auth.py` 의 `ADMIN_GROUP_NAME`
+
+Entra 는 기본값으로 토큰에 그룹을 넣지 않습니다. 이 단계를 건너뛰면 1.5 에서 어드민 그룹에 넣은 사용자도 [6단계](06-verify.md) 콘솔 사인인에서 비관리자로 표시됩니다.
 
 ```bash
 az rest --method PATCH --url "https://graph.microsoft.com/v1.0/applications/$OBJ" --body "{\"groupMembershipClaims\": \"SecurityGroup\", \"optionalClaims\": {\"idToken\": [{\"name\": \"groups\", \"essential\": false}], \"accessToken\": [{\"name\": \"groups\", \"essential\": false}]}}"
 ```
+
+성공하면 아무것도 출력하지 않습니다. 명령이 바꾸는 설정은 두 가지입니다.
+
+| 설정 | 의미 |
+| --- | --- |
+| `groupMembershipClaims: "SecurityGroup"` | 사용자가 속한 보안 그룹을 토큰에 넣음 |
+| `optionalClaims` 의 `idToken`·`accessToken` 에 `groups` | ID 토큰과 액세스 토큰 모두에 넣음 |
+
+포털에서 **앱 등록 → (앱) → 토큰 구성 → 그룹 클레임 추가 → 보안 그룹**을 선택하는 것과 같습니다.
+
+> [!IMPORTANT]
+> 토큰에 들어가는 값은 그룹 이름(`claude-gateway-admins`)이 아니라 그룹의 **object ID(GUID)** 입니다. \
+> 그래서 1.5 에서 그룹 GUID 를 `GRP` 로 받아 두고, 관리 콘솔에는 [3단계](03-configure-source.md), 게이트웨이에는 [4단계](04-deploy.md)의 `-c adminOktaGroupName` 으로 이름 대신 GUID 를 넣습니다.
 
 ## 1.4 client secret 생성
 
