@@ -1,0 +1,29 @@
+# CDK
+cdk/cdk.out/
+cdk/cdk.context.json
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Python
+admin-console/.venv/
+admin-console/__pycache__/
+admin-console/**/__pycache__/
+*.pyc
+
+# OS / editor
+.DS_Store
+*.swp
+
+# Never commit real secrets or VPN profiles
+*.ovpn
+*.pem
+*.key
+
+# Local-only project spec, never pushed to GitHub
+SPEC.md
+
+# Personal how-to with hardcoded live endpoint hostnames for a specific
+# deployment -- not generic reference material, never pushed to GitHub
+docs/trying-out-a-deployed-gateway.md
