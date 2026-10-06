@@ -45,6 +45,13 @@ AWS CDK CLI 는 따로 설치하지 않아도 됩니다. `cdk/package.json`에 �
 
 ### 설치 방법
 
+> [!NOTE]
+> - MacOS 절차의 경우 [Homebrew](https://brew.sh)를 통한 설치 방법입니다.
+> - Windows 절차는 Git Bash 기준이며, 이 가이드를 작성하며 Windows 에서 처음부터 끝까지 실행해 보지는 않았습니다.
+> 알려진 차이는 [3.1](docs/03-configure-source.md#31-관리-콘솔의-어드민-그룹-지정)의 `sed` 명령 하나이고, 해당 위치에
+> Git Bash 용 명령을 따로 적어 두었습니다. `chmod 600` 은 Windows 에서는 효과가 없으므로 `cdk.context.json` 은 파일 권한
+> 대신 보관 위치로 관리합니다.
+
 #### macOS
 
 1. nodejs, awscli, azure-cli, jq 패키지 설치
