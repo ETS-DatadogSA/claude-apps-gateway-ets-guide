@@ -280,9 +280,24 @@ ISSUER=https://login.microsoftonline.com/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/v2
 
 다섯 변수가 모두 채워졌는지 봅니다. secret 은 길이만 출력합니다.
 
-**변수 확인 명령어**
+### 변수 확인 명령어
 ```bash
 echo "APP=$APP OBJ=$OBJ GRP=$GRP ISSUER=$ISSUER SECRET_LEN=${#SECRET}"
 ```
+
+### 변수 확인 결과 예시
+```text
+APP=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx OBJ=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy GRP=zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz ISSUER=https://login.microsoftonline.com/<tenant-id>/v2.0 SECRET_LEN=40
+```
+
+| 변수 | 확인할 것 |
+| --- | --- |
+| `APP` | 1.2 출력의 `APP=` 와 같음 |
+| `OBJ` | 1.2 출력의 `OBJ=` 와 같음. `APP` 과는 다른 값 |
+| `GRP` | 1.5 출력의 `GRP=` 와 같음 |
+| `ISSUER` | 가운데가 1.1 의 테넌트 ID, 끝이 `/v2.0` |
+| `SECRET_LEN` | 0 이 아님 (1.4 출력의 길이와 같음) |
+
+하나라도 비어 있으면 셸이 바뀐 것입니다. 해당 단계를 같은 셸에서 다시 실행합니다. 1.4 secret 을 다시 만들면 새 secret 이 추가되므로, 쓰지 않는 secret 은 **인증서 및 암호**에서 지웁니다.
 
 다음: [2. AWS 배포 준비](02-aws-preparation.md)
