@@ -7,6 +7,7 @@
 
 > [!NOTE]
 > Entra ID 연동의 경우 구성되어 있는 Entra의 환경에 따라 OIDC 연동 방법이 다를 수 있습니다.
+> 
 > 해당 레포지터리의 Entra ID 연동의 경우 최소한의 구성을 기준으로 테스트 되었습니다.
 
 ## 문서 순서
@@ -23,6 +24,7 @@
 | 8 | [커스텀 추론 프로파일 (선택)](docs/08-custom-inference-profile.md) | 특정 모델을 application inference profile 로 보내기 |
 | 9 | [업데이트와 삭제](docs/09-update-and-cleanup.md) | 재배포, `cdk destroy`, Entra 정리 |
 | 10 | [문제 해결](docs/10-troubleshooting.md) | 증상별 원인과 조치 |
+
 
 > [!NOTE]
 > 1. 모든 단계는 같은 Shell에서 이어서 진행하는 것을 전제로 합니다.
