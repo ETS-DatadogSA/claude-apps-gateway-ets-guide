@@ -271,9 +271,17 @@ GRP=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 <details>
 <summary>다른 관리자 추가</summary>
 
+**CLI 로 추가하는 경우**
 ```bash
 az ad group member add --group "$GRP" --member-id "$(az ad user show --id <user@your-domain> --query id -o tsv)"
 ```
+
+**포털에서 추가하는 경우** \
+**그룹 → 모든 그룹 → claude-gateway-admins → 관리 → 구성원 → 구성원 추가**에서 사용자를 검색해 체크하고 **선택**을 누릅니다.
+
+![어드민 그룹 구성원 추가](images/01-admin-group-add-member.png)
+
+추가한 사용자는 다음 로그인부터 토큰의 `groups` 에 이 그룹이 들어가 관리자가 됩니다.
 
 </details>
 
