@@ -115,16 +115,16 @@ Claude Apps Gateway와 관리 콘솔은 로그인 토큰에 담긴 그룹 목록
 > [!TIP]
 > 해당 과정을 건너 뛸 경우 Admin 그룹에 넣은 사용자도 관리자로 인식되지 않습니다.
 
-
-**Group claim 명령어**
+### **Group claim 명령어**
 ```bash
 az rest --method PATCH --url "https://graph.microsoft.com/v1.0/applications/$OBJ" --body "{\"groupMembershipClaims\": \"SecurityGroup\", \"optionalClaims\": {\"idToken\": [{\"name\": \"groups\", \"essential\": false}], \"accessToken\": [{\"name\": \"groups\", \"essential\": false}]}}"
 ```
 
-성공하면 아무것도 출력하지 않습니다.
+성공하면 아무것도 출력하지 않습니다. \
 
-**포털에서 확인** \
-**앱 등록 → (앱) → 관리 → 토큰 구성**의 선택적 클레임 목록에 `groups` 가 보입니다. 명령 실행 전에 열어 둔 화면이면 새로 고침해야 나타납니다.
+### **포털에서 확인하는 방법** \
+**앱 등록 → (앱) → 관리 → 토큰 구성**의 선택적 클레임 목록에 `groups` 가 보입니다. \
+명령 실행 전에 열어 둔 화면이면 새로 고침해야 나타납니다.
 
 ![토큰 구성의 groups 클레임](images/01-token-configuration.png)
 
