@@ -1,0 +1,51 @@
+# 7. 업데이트와 삭제
+
+## 7.1 업데이트
+
+업스트림 변경을 반영할 때는 같은 트리에서 받아 오고, [3단계](03-configure-source.md)의 세 값이 유지됐는지 확인한
+뒤 재배포합니다. 업스트림이 같은 줄을 고쳤다면 충돌이 나므로 직접 맞춥니다.
+
+```bash
+git pull && git status --short
+```
+
+```bash
+cd cdk && npm install && npx cdk deploy --all -c oidcIssuer="$ISSUER" -c oidcClientId="$APP" -c oidcClientSecret="$SECRET" -c adminOktaGroupName="$GRP"
+```
+
+`gateway/` 나 `admin-console/` 가 바뀌었으면 BuildMachine 스택이 이미지를 다시 빌드합니다.
+
+## 7.2 스택 삭제
+
+`destroy` 도 스택을 다시 합성하므로 컨텍스트가 필요합니다. 업스트림 `docs/05-cleanup.md` 의 예시에는
+`oidcClientSecret` 이 빠져 있어 그대로 실행하면 실패합니다. 새 셸이라면
+[4.5](04-deploy.md#45-새-셸에서-변수-복원)로 변수를 먼저 복원합니다.
+
+```bash
+npx cdk destroy --all -c oidcIssuer="$ISSUER" -c oidcClientId="$APP" -c oidcClientSecret="$SECRET" -c adminOktaGroupName="$GRP"
+```
+
+남은 스택이 없는지 확인합니다. 빈 결과면 7개 모두 지워진 것입니다.
+
+```bash
+aws cloudformation list-stacks --region us-east-1 --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE DELETE_FAILED --query "StackSummaries[?starts_with(StackName,'ClaudeGateway')].{Name:StackName,Status:StackStatus}"
+```
+
+`cdk destroy` 가 지우지 않는 것은 다음과 같습니다.
+
+| 항목 | 이유 | 조치 |
+| --- | --- | --- |
+| CDK bootstrap ECR 리포(`cdk-hnb659fds-container-assets-<account>-us-east-1`)의 이미지 | 같은 계정·리전의 다른 CDK 앱과 공유 | 필요하면 이미지 태그를 직접 삭제하거나 수명 주기 정책 적용 |
+| `CDKToolkit` 스택 | bootstrap 결과물로 다른 CDK 앱도 사용 | 그대로 둠 |
+| Entra 앱과 어드민 그룹 | AWS 밖의 리소스 | 7.3 |
+
+## 7.3 Entra 정리
+
+```bash
+az ad app delete --id "$APP" && az ad group delete --group "$GRP"
+```
+
+로컬의 `cdk/cdk.context.json` 과 `claude-gateway-vpn-client.ovpn` 에는 secret 과 VPN 키가 남아 있습니다. 더
+쓰지 않으면 지웁니다.
+
+다음: [8. 문제 해결](08-troubleshooting.md)
