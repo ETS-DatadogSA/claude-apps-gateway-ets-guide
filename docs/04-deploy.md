@@ -3,6 +3,8 @@
 [1단계](01-entra-id.md)에서 만든 값으로 CDK 를 bootstrap 하고 스택 7개를 배포합니다. 여기부터는 `cdk/` 에서
 실행합니다.
 
+![스택 의존 관계와 배포 순서](images/04-deploy.drawio.png)
+
 ```bash
 cd cdk
 ```

@@ -3,6 +3,8 @@
 이 리포를 새로 받고, 배포 계정·리전을 고정하고, 배포를 막는 두 가지(Bedrock 추론 프로파일, Aurora 버전)를 미리
 확인합니다. [1단계](01-entra-id.md)와 같은 셸에서 진행합니다.
 
+![배포 전 PC 에서 확인하는 항목](images/02-aws-preparation.drawio.png)
+
 ## 2.1 리포 clone
 
 이 리포의 `admin-console/`, `cdk/`, `gateway/` 는 업스트림 `main`(3bb468f)에 Entra 용 설정 두 곳을 반영한

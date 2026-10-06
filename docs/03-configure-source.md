@@ -4,6 +4,8 @@
 값으로 바꿔 두었고, 테넌트마다 다른 어드민 그룹 GUID 한 곳만 배포 전에 채우면 됩니다. 리포 루트에서
 실행합니다(macOS `sed` 기준).
 
+![그룹 GUID 가 관리자 판정까지 가는 길](images/03-configure-source.drawio.png)
+
 | 위치 | 업스트림 값 | 이 리포 값 | 이유 |
 | --- | --- | --- | --- |
 | `gateway/gateway.yaml` `oidc.userinfo_fallback` | `true` | `false` (반영됨) | Okta org 서버의 thin id_token 대응용. Entra 의 userinfo 는 groups 를 주지 않음 |

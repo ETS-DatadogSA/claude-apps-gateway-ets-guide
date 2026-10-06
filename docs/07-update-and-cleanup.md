@@ -1,5 +1,7 @@
 # 7. 업데이트와 삭제
 
+![업데이트와 삭제 시 바뀌는 것과 남는 것](images/07-update-and-cleanup.drawio.png)
+
 ## 7.1 업데이트
 
 이 리포의 변경을 받아 와 재배포합니다. [3.1](03-configure-source.md#31-관리-콘솔의-어드민-그룹-지정)에서 넣은 GUID 는

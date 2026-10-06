@@ -3,6 +3,8 @@
 게이트웨이는 프라이빗 서브넷에 있어 VPN 없이는 닿지 않고, Entra 앱의 리다이렉트 URI 는 아직 임시값입니다.
 사인인 전에 두 가지를 마칩니다. `cdk/` 에서 실행합니다.
 
+![VPN 경로와 Entra 리다이렉트](images/05-vpn-and-redirect.drawio.png)
+
 ## 5.1 VPN 연결
 
 VPN 프로필은 배포가 만들어 Secrets Manager 에 넣어 둡니다. 내려받습니다.

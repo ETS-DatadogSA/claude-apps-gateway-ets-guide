@@ -44,7 +44,7 @@
 
 ## 다이어그램 수정
 
-draw.io 에서 `architecture.drawio` 를 고친 뒤 PNG 를 다시 찍습니다(macOS).
+draw.io 에서 `architecture.drawio` 를 고친 뒤 PNG 를 다시 찍습니다(macOS). 문서별 그림(`docs/images/*.drawio`)도 같은 옵션으로 찍습니다.
 
 ```bash
 /Applications/draw.io.app/Contents/MacOS/draw.io -x -f png -e -b 20 -s 2 -o docs/architecture.drawio.png docs/architecture.drawio

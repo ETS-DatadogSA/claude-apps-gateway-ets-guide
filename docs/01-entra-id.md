@@ -3,6 +3,8 @@
 게이트웨이가 쓸 Entra 앱과 어드민 그룹을 만들고, CDK 배포에 넘길 값 네 개(`APP`, `SECRET`, `GRP`, `ISSUER`)를
 셸 변수로 확보합니다. 모든 명령은 Azure CLI(`az`)로 실행합니다.
 
+![Entra ID 앱 등록 결과물과 CDK 컨텍스트](images/01-entra-id.drawio.png)
+
 | 변수 | 내용 | 쓰이는 곳 |
 | --- | --- | --- |
 | `APP` | 앱(client) ID | CDK 컨텍스트 `oidcClientId` |

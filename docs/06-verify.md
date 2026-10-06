@@ -4,6 +4,8 @@
 연결한 상태에서 진행합니다. 세부 화면은 업스트림 문서 [03-verify.md](upstream/03-verify.md) 와 [04-admin-console-guide.md](upstream/04-admin-console-guide.md) 를
 참고합니다.
 
+![다섯 가지 확인이 지나가는 경로](images/06-verify.drawio.png)
+
 | 확인 | 방법 | 기대 결과 |
 | --- | --- | --- |
 | 게이트웨이 헬스 | `curl -s "$GWEP/healthz"` | `{"status":"ok"}` 류의 응답 |
