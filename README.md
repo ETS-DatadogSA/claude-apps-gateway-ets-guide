@@ -46,9 +46,6 @@ AWS CDK CLI 는 따로 설치하지 않아도 됩니다. `cdk/package.json`에 �
 ### 설치 방법
 
 #### macOS
-> [!NOTE]
-> - [Homebrew](https://brew.sh)를 통한 설치 방법입니다.
-> - 이미 설치되어 있을 경우 스킵할 수 있습니다.
 
 1. nodejs, awscli, azure-cli, jq 패키지 설치
 ```bash
@@ -77,12 +74,6 @@ winget install --id Docker.DockerDesktop -e
 ```
 
 마지막 줄의 Docker Desktop 도 `esbuild` 를 쓸 거라면 빼도 됩니다. 설치가 끝나면 Git Bash 를 새로 열어야 PATH 가 반영됩니다.
-
-> [!NOTE]
-> Windows 절차는 Git Bash 기준이며, 이 가이드를 작성하며 Windows 에서 처음부터 끝까지 실행해 보지는 않았습니다.
-> 알려진 차이는 [3.1](docs/03-configure-source.md#31-관리-콘솔의-어드민-그룹-지정)의 `sed` 명령 하나이고, 해당 위치에
-> Git Bash 용 명령을 따로 적어 두었습니다. `chmod 600` 은 Windows 에서는 효과가 없으므로 `cdk.context.json` 은 파일 권한
-> 대신 보관 위치로 관리합니다.
 
 ### 계정과 권한
 
