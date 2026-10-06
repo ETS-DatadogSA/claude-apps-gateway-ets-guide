@@ -32,15 +32,16 @@ No     Subscription name     Subscription ID                       Tenant
 
 Select a subscription and tenant (Type a number or Enter for no changes): 1
 ```
+[!ALERT]
+> 개인 계정으로 Azure 에 가입하면 `기본 디렉터리` 테넌트가 자동으로 생기고, 가입한 계정이 그 테넌트의 관리자가 됩니다. \
+> 구독이 없는 테넌트에는 `az login --allow-no-subscriptions` 로 로그인합니다. 선택한 테넌트와 계정을 확인합니다.
 
-개인 계정으로 Azure 에 가입하면 `기본 디렉터리` 테넌트가 자동으로 생기고, 가입한 계정이 그 테넌트의 관리자가 됩니다. 구독이 없는 테넌트에는 `az login --allow-no-subscriptions` 로 로그인합니다.
-
-선택한 테넌트와 계정을 확인합니다.
-
+**테넌트 확인 명령어**
 ```bash
 az account show --query "{tenant:tenantId, user:user.name}" -o table
 ```
 
+**테넌트 확인 결과 예시**
 ```text
 Tenant                                User
 ------------------------------------  ---------------------
@@ -49,7 +50,8 @@ xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  user@example.com
 
 ## 1.2 앱 등록
 
-게이트웨이는 client secret 을 쓰는 confidential client 입니다. 리다이렉트 URI 는 배포 후에 정해지므로 임시값으로 두고 [5.2](05-vpn-and-redirect.md#52-entra-리다이렉트-uri-교체)에서 바꿉니다.
+Gateway는 client secret 을 쓰는 confidential client 입니다. \
+Redirect URI 는 배포 후에 정해지므로 임시값으로 두고 [5.2](05-vpn-and-redirect.md#52-entra-리다이렉트-uri-교체)에서 바꿉니다.
 
 ```bash
 APP=$(az ad app create --display-name "Claude Apps Gateway" --sign-in-audience AzureADMyOrg --web-redirect-uris "https://placeholder.invalid/oauth/callback" --query appId -o tsv) && echo "APP=$APP"
@@ -59,7 +61,7 @@ az ad sp create --id "$APP"
 
 마지막 명령은 서비스 주체를 JSON 으로 출력합니다. `appId` 가 `APP` 과 같고 `replyUrls` 가 임시값이면 됩니다. 실행 결과(값은 가리고 JSON 은 일부만):
 
-```text
+```json
 APP=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 OBJ=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy
 {
