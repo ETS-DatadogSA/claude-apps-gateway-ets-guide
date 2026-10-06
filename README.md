@@ -32,10 +32,9 @@
 ## Requirement
 
 ### 로컬 도구
-
 | 도구 | 버전 | 어디에 쓰나 | 확인 명령 |
 | --- | --- | --- | --- |
-| Node.js | 20 이상 | CDK 실행 (`npx cdk`) | `node --version` |
+| Node.js | 20 이상, LTS 권장(24) | CDK 실행 (`npx cdk`) | `node --version` |
 | AWS CLI | v2 | 자격증명 확인, 스택 출력값·VPN 프로필 조회 | `aws --version` |
 | Azure CLI (`az`) | - | Entra 앱·그룹 생성 ([1단계](docs/01-entra-id.md)) | `az version` |
 | `jq` | - | VPN 프로필 추출, 컨텍스트 파일 저장·복원 | `jq --version` |
@@ -47,15 +46,14 @@ AWS CDK CLI 는 따로 설치하지 않아도 됩니다. `cdk/package.json` 에 
 ### 설치
 
 #### macOS
-
-[Homebrew](https://brew.sh) 기준입니다.
-
+> [!NOTE]
+>  [Homebrew](https://brew.sh)를 통한 설치 방법입니다.
 ```bash
 brew install node awscli azure-cli jq
 ```
 
 ```bash
-brew install --cask aws-vpn-client docker-desktop
+brew install --cask docker-desktop
 ```
 
 Docker 는 Lambda 번들링에만 씁니다. [2.2](docs/02-aws-preparation.md#22-의존성과-번들러)에서 `esbuild` 를 넣을 거라면
