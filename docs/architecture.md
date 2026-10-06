@@ -2,7 +2,7 @@
 
 ![Claude Apps Gateway on AWS — Entra ID 배포 구성](architecture.drawio.png)
 
-원본: [architecture.drawio](architecture.drawio). 업스트림 3bb468f 의 CDK 소스(`cdk/lib/*.ts`) 기준으로 그렸습니다.
+편집용 파일: [architecture.drawio](architecture.drawio). 원본 리포 3bb468f 의 CDK 소스(`cdk/lib/*.ts`) 기준으로 그렸습니다.
 
 ## 요청 흐름
 

@@ -1,12 +1,12 @@
 # 3. Entra 용 설정값 반영
 
-업스트림은 Okta 기준으로 짜여 있어 설정값 세 곳이 Entra 와 맞지 않습니다. 이 리포는 그중 두 곳을 이미 Entra
+원본 리포는 Okta 기준으로 짜여 있어 설정값 세 곳이 Entra 와 맞지 않습니다. 이 리포는 그중 두 곳을 이미 Entra
 값으로 바꿔 두었고, 테넌트마다 다른 어드민 그룹 GUID 한 곳만 배포 전에 채우면 됩니다. 리포 루트에서
 실행합니다(macOS `sed` 기준).
 
 ![그룹 GUID 가 관리자 판정까지 가는 길](images/03-configure-source.drawio.png)
 
-| 위치 | 업스트림 값 | 이 리포 값 | 이유 |
+| 위치 | 원본 값 | 이 리포 값 | 이유 |
 | --- | --- | --- | --- |
 | `gateway/gateway.yaml` `oidc.userinfo_fallback` | `true` | `false` (반영됨) | Okta org 서버의 thin id_token 대응용. Entra 의 userinfo 는 groups 를 주지 않음 |
 | `gateway/gateway.yaml` `oidc.scopes` | `groups` 포함 | `groups` 제거 (반영됨) | Entra 에 `groups` 스코프가 없음. 그룹은 optional claim 으로 옴([1.3](01-entra-id.md#13-groups-클레임-활성화)) |

@@ -1,6 +1,6 @@
-# 8. 문제 해결
+# 10. 문제 해결
 
-![단계별로 자주 막히는 지점](images/08-troubleshooting.drawio.png)
+![단계별로 자주 막히는 지점](images/10-troubleshooting.drawio.png)
 
 | 증상 | 원인 | 조치 |
 | --- | --- | --- |
@@ -14,7 +14,9 @@
 | 게이트웨이 컨테이너 크래시루프 후 스택 롤백 | `gateway.yaml` 에 스키마에 없는 키 | [3단계](03-configure-source.md) 외의 `gateway.yaml` 변경을 되돌림 |
 | VPN 스택 `Request content has changed ... client token` | 이전 시도의 멱등성 토큰 충돌 | VPN 스택 삭제 후 재배포 |
 | 스택이 `ROLLBACK_COMPLETE` 로 남음 | CREATE 실패 스택은 업데이트 불가 | [아래](#rollback_complete-스택-정리) |
-| 배포는 됐는데 추론 실패 | us-east-1 외 리전이라 `us.anthropic.*` 프로파일 없음 | [2.4](02-aws-preparation.md#24-bedrock-추론-프로파일-확인) |
+| 배포는 됐는데 추론 실패 | 배포 리전에 `us.anthropic.*` 프로파일이 없음 | us-east-1 로 배포하거나 [8. 커스텀 추론 프로파일](08-custom-inference-profile.md) 사용 ([2.4](02-aws-preparation.md#24-bedrock-추론-프로파일-확인)) |
+| `/v1/messages` 에서 모델이 `400` | 모델이 허용 목록(`AVAILABLE_MODELS_RAW`)에 없음 | 관리 콘솔 모델 화면에서 켬 ([7.2](07-admin-console.md#72-모델-접근)) |
+| 게이트웨이 부팅 실패, CloudWatch 에 설정 오류 | `gateway.yaml` 들여쓰기·키 오류 | 로그 그룹에서 부팅 순서(설정 로드 → DB 마이그레이션 → `claude gateway listening`) 확인 |
 
 ## 사인인은 되는데 not-authorized
 

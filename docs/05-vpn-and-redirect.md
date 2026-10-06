@@ -13,7 +13,8 @@ VPN 프로필은 배포가 만들어 Secrets Manager 에 넣어 둡니다. 내�
 aws secretsmanager get-secret-value --secret-id "$(aws cloudformation describe-stacks --stack-name ClaudeGatewayVpnStack --query "Stacks[0].Outputs[?OutputKey=='VpnClientProfileSecretArn'].OutputValue" --output text)" --query SecretString --output text | jq -r .ovpnProfile > claude-gateway-vpn-client.ovpn
 ```
 
-1. [AWS VPN Client](https://docs.aws.amazon.com/vpn/latest/clientvpn-user/user-getting-started.html) 를 설치합니다.
+1. [AWS VPN Client](https://docs.aws.amazon.com/vpn/latest/clientvpn-user/user-getting-started.html) 를 설치합니다. 프로필은
+   인증서가 파일 안에 들어 있는 표준 OpenVPN 형식이라, 다른 표준 OpenVPN 클라이언트도 쓸 수 있습니다.
 2. File → Manage Profiles → Add Profile 로 `claude-gateway-vpn-client.ovpn` 을 추가합니다.
 3. 프로필을 선택하고 Connect 를 누릅니다.
 

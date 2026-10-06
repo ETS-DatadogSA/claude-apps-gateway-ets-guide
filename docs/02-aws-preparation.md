@@ -7,7 +7,7 @@
 
 ## 2.1 리포 clone
 
-이 리포의 `admin-console/`, `cdk/`, `gateway/` 는 업스트림 `main`(3bb468f)에 Entra 용 설정 두 곳을 반영한
+이 리포의 `admin-console/`, `cdk/`, `gateway/` 는 원본 `main`(3bb468f)에 Entra 용 설정 두 곳을 반영한
 소스입니다([3단계](03-configure-source.md)). 배포용 트리는 새로 받습니다. `gateway/` 와 `admin-console/` 는 로컬
 트리에서 그대로 패키징되므로, 다른 실험용 수정이 섞인 트리로 배포하면 그 수정까지 올라갑니다.
 
@@ -71,14 +71,16 @@ unset AWS_PROFILE && eval "$(aws configure export-credentials --profile <admin-p
 aws bedrock list-inference-profiles --query "inferenceProfileSummaries[?starts_with(inferenceProfileId,'us.anthropic')].inferenceProfileId" --output table
 ```
 
-> us-east-1 이 아닌 리전에 배포하면 이 프로파일이 없어 **배포는 성공하고 추론에서 실패**합니다. 그 경우
-> `gateway/gateway.yaml` 의 `models:` 블록([upstream/06-custom-inference-profile.md](upstream/06-custom-inference-profile.md))과
-> `cdk/lib/gateway-stack.ts` 의 IAM 정책(`inference-profile/us.anthropic.*` 만 허용)을 함께 고쳐야 하며,
-> 이 가이드의 범위를 벗어납니다.
+> `us.anthropic.*` 프로파일이 없는 리전(예: `ap-northeast-2`)에 배포하면 **배포는 성공하고 추론에서 실패**합니다.
+> 게이트웨이 IAM 정책은 배포 리전의 `inference-profile/us.anthropic.*` 시스템 프로파일과, 같은 계정의 application
+> inference profile(리전 무관)만 허용합니다. 그런 리전에서는 application inference profile 을 만들어
+> `gateway/gateway.yaml` 의 `models:` 블록에 지정하면 IAM 수정 없이 쓸 수 있습니다([8. 커스텀 추론 프로파일](08-custom-inference-profile.md)).
+> `global.anthropic.*` 같은 다른 시스템 프로파일을 쓰려면 `cdk/lib/gateway-stack.ts` 의 IAM 정책도 고쳐야 하며, 이
+> 가이드의 범위를 벗어납니다.
 
 ## 2.5 Aurora 버전 확인
 
-`cdk/lib/database-stack.ts` 는 업스트림 그대로 Aurora PostgreSQL 을 `VER_16_6` 으로 고정합니다. AWS 가 그 마이너
+`cdk/lib/database-stack.ts` 는 원본 그대로 Aurora PostgreSQL 을 `VER_16_6` 으로 고정합니다. AWS 가 그 마이너
 버전을 리전에서 내리면 database 스택이 `Cannot find version 16.6 for aurora-postgresql` 로 실패합니다.
 2026-09-18 us-east-1 에서 실제로 발생했습니다(일반 `16.6` 이 사라지고 `16.6-limitless` 만 남음).
 
@@ -86,7 +88,7 @@ aws bedrock list-inference-profiles --query "inferenceProfileSummaries[?starts_w
 aws rds describe-db-engine-versions --engine aurora-postgresql --region us-east-1 --query "DBEngineVersions[?starts_with(EngineVersion,'16.')].EngineVersion" --output json
 ```
 
-결과에 `16.6` 이 있으면 그대로 진행합니다. 없으면 [8. 문제 해결](08-troubleshooting.md#aurora-버전-없음)대로
+결과에 `16.6` 이 있으면 그대로 진행합니다. 없으면 [10. 문제 해결](10-troubleshooting.md#aurora-버전-없음)대로
 리전과 CDK 양쪽에 있는 버전으로 올린 뒤 진행합니다.
 
 다음: [3. Entra 용 설정값 반영](03-configure-source.md)

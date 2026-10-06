@@ -28,7 +28,7 @@ npx cdk bootstrap "aws://$(aws sts get-caller-identity --query Account --output 
 ```
 
 `iam:CreateRole` 권한이 없으면 `CDKToolkit` 스택이 `ROLLBACK_COMPLETE` 로 남습니다.
-[8. 문제 해결](08-troubleshooting.md)을 참고합니다.
+[10. 문제 해결](10-troubleshooting.md)을 참고합니다.
 
 ## 4.2 배포
 
@@ -36,13 +36,22 @@ npx cdk bootstrap "aws://$(aws sts get-caller-identity --query Account --output 
 npx cdk deploy --all -c oidcIssuer="$ISSUER" -c oidcClientId="$APP" -c oidcClientSecret="$SECRET" -c adminOktaGroupName="$GRP"
 ```
 
-- 스택 7개가 25~35분에 걸쳐 올라갑니다. 의존성이 없는 스택은 병렬로 진행됩니다.
+- 스택 7개가 25~35분에 걸쳐 올라갑니다. 대부분은 Aurora 클러스터 생성, BuildMachine 의 Docker 빌드·푸시, ECS Express
+  Mode 서비스 두 개의 로드밸런서 생성에 걸립니다. 의존성이 없는 스택은 병렬로 진행됩니다.
+- 이미지는 이 배포가 만드는 임시 Linux x86_64 EC2 에서 빌드·푸시하고, 끝나면 EC2 는 자동으로 내려갑니다. 로컬 PC 에서
+  빌드하지 않습니다.
 - IAM 변경 승인 프롬프트가 한 번 뜹니다. 자리를 비울 거면 `--require-approval never` 를 붙입니다.
 - 도중에 자격증명이 만료돼 CDK 가 멈춰도 CloudFormation 은 AWS 쪽에서 계속 진행됩니다. 다시 인증하고 같은
   명령을 실행하면 이어집니다.
 
-> `oidcClientSecret` 은 합성된 템플릿(`cdk.out/ClaudeGatewaySecretsStack.template.json`)에 평문으로 남습니다.
-> 업스트림이 `SecretValue.unsafePlainText` 로 넘기기 때문입니다. PoC 용 패턴이며 운영 배포에는 맞지 않습니다.
+`oidcClientSecret` 은 필수입니다. 게이트웨이는 부팅 때 설정 스키마 전체를 검증하고 `client_secret` 을 필수로 봅니다.
+원본의 이전 설계는 빈 자리표시자로 배포한 뒤 나중에 채우게 했는데, 게이트웨이가 매번 크래시루프에 빠졌습니다. ECS Express
+Mode 가 포기하면 CloudFormation 이 스택 전체를 롤백해서 고칠 기회조차 없었습니다.
+
+> `oidcClientSecret` 은 `cdk.context.json` 과 합성된 템플릿(`cdk.out/ClaudeGatewaySecretsStack.template.json`)에
+> 평문으로 남고, 이 계정의 CloudFormation 콘솔·API 를 읽을 수 있는 사람에게도 보입니다. 원본 코드가
+> `SecretValue.unsafePlainText` 로 넘기기 때문입니다. 참조·PoC 용 패턴이며 운영 배포에는 맞지 않습니다. 운영에서는
+> Secrets Manager 에 시크릿을 따로 만들어 두고 CDK 가 ARN 으로 참조하도록 바꿉니다.
 
 ## 4.3 컨텍스트 파일로 저장 (선택)
 
@@ -56,7 +65,9 @@ jq -n --arg i "$ISSUER" --arg a "$APP" --arg s "$SECRET" --arg g "$GRP" '{oidcIs
 
 ## 4.4 출력값 기록
 
-배포가 끝나면 두 URL 이 출력됩니다. 호스트명은 ECS Express Mode 가 만들기 때문에 배포 전에는 알 수 없습니다.
+배포가 끝나면 두 URL 이 출력됩니다. 호스트명은 ECS Express Mode 가 만들기 때문에 배포 전에는 알 수 없습니다. 두 스택은
+배포 과정에서 각자의 `*_PUBLIC_URL` 환경변수를 실제 값으로 자동으로 고쳐 넣습니다(`gateway-stack.ts`·`admin-console-stack.ts`
+의 URL fixer Custom Resource). 따로 손댈 것은 없습니다.
 
 ```
 ClaudeGatewayStack.GatewayEndpoint                  = https://cl-xxxx.ecs.us-east-1.on.aws

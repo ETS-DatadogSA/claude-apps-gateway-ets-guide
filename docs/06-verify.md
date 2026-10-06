@@ -1,7 +1,7 @@
 # 6. 배포 확인
 
 아래 다섯 항목이 모두 통과하면 인증, 비용 한도 관리, 모델 접근 관리, Bedrock 추론까지 확인된 것입니다. 모두 VPN 을
-연결한 상태에서 진행합니다. 세부 화면은 업스트림 문서 [03-verify.md](upstream/03-verify.md) 와 [04-admin-console-guide.md](upstream/04-admin-console-guide.md) 를
+연결한 상태에서 진행합니다. 세부 화면은 원본 문서 [03-verify.md](original/03-verify.md) 와 [04-admin-console-guide.md](original/04-admin-console-guide.md) 를
 참고합니다.
 
 ![다섯 가지 확인이 지나가는 경로](images/06-verify.drawio.png)
@@ -31,13 +31,20 @@ curl -s "$GWEP/healthz"
 4. `/spend/dashboard` 에 도착하면 성공입니다.
 
 `/not-authorized` 로 가면 그룹 정보가 콘솔까지 오지 않은 것입니다.
-[8. 문제 해결](08-troubleshooting.md#사인인은-되는데-not-authorized)을 따릅니다.
+[10. 문제 해결](10-troubleshooting.md#사인인은-되는데-not-authorized)을 따릅니다.
 
 ## 6.3 비용 한도와 감사 로그
 
 콘솔의 Limits(`/spend/limits`)에서 테스트용 조직 한도(예: 월 $10)를 만들고 목록에 나타나는지 확인합니다. Audit
 (`/spend/audit`)에서 해당 항목의 actor 가 공용 자격증명이 아니라 로그인한 관리자 본인(`oidc:<subject>`)인지
-확인합니다. 확인이 끝나면 테스트 한도를 지웁니다.
+확인합니다. 콘솔이 공용 자격증명이 아니라 사인인한 관리자 본인의 ID 로 이 쓰기를 했다는 뜻입니다. 확인이 끝나면 테스트
+한도를 지웁니다.
+
+감사 로그는 게이트웨이에 직접 물어볼 수도 있습니다. 관리자의 게이트웨이 토큰이 필요합니다.
+
+```bash
+curl -s -H "Authorization: Bearer <관리자의 게이트웨이 토큰>" "$GWEP/v1/organizations/audit_log?limit=5"
+```
 
 ## 6.4 모델 접근
 
@@ -65,4 +72,4 @@ Claude Code 는 게이트웨이 주소를 **managed settings** 에서만 읽습�
 3. device 인증을 승인하고 간단한 프롬프트를 실행합니다.
 4. 콘솔 Audit 에 사용한 모델과 사용자 정보가 담긴 추론 기록이 남는지 확인합니다.
 
-다음: [7. 업데이트와 삭제](07-update-and-cleanup.md)
+다음: [7. 관리 콘솔 사용법](07-admin-console.md)
