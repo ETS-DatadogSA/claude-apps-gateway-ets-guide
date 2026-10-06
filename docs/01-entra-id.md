@@ -15,6 +15,7 @@ Claude Apps Gateway용 Entra ID App과 Admin을 만들고, cdk 배포에 사용�
 
 앱 등록·그룹 생성 권한이 있는 계정으로 로그인하고, 테넌트를 확인합니다.
 
+**로그인 명령어**
 ```bash
 az login
 ```
@@ -54,6 +55,7 @@ xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  user@example.com
 Gateway는 client secret 을 쓰는 confidential client 입니다. \
 Redirect URI 는 배포 후에 정해지므로 임시값으로 두고 [5.2](05-vpn-and-redirect.md#52-entra-리다이렉트-uri-교체)에서 바꿉니다.
 
+**앱 등록 명령어**
 ```bash
 APP=$(az ad app create --display-name "Claude Apps Gateway" --sign-in-audience AzureADMyOrg --web-redirect-uris "https://placeholder.invalid/oauth/callback" --query appId -o tsv) && echo "APP=$APP"
 OBJ=$(az ad app show --id "$APP" --query id -o tsv) && echo "OBJ=$OBJ"
@@ -100,7 +102,21 @@ OBJ=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy
 ## 1.3 groups claim 활성화
 
 로그인 토큰에 사용자가 속한 그룹 목록(`groups` 클레임)을 넣도록 앱 설정을 바꿉니다. \
-Claude Apps Gateway와 관리 콘솔은 이 클레임만 보고 관리자를 판단합니다.
+Claude Apps Gateway와 관리 콘솔은 이 클레임만 보고 관리자를 판단하므로, 건너뛰면 어드민 그룹에 넣은 사용자도 관리자로 인식되지 않습니다.
+
+**Group Claim 명령어**
+```bash
+az rest --method PATCH --url "https://graph.microsoft.com/v1.0/applications/$OBJ" --body "{\"groupMembershipClaims\": \"SecurityGroup\", \"optionalClaims\": {\"idToken\": [{\"name\": \"groups\", \"essential\": false}], \"accessToken\": [{\"name\": \"groups\", \"essential\": false}]}}"
+```
+
+성공하면 아무것도 출력하지 않습니다.
+
+> [!IMPORTANT]
+> 토큰에 들어가는 값은 그룹 이름(`claude-gateway-admins`)이 아니라 그룹의 **object ID(GUID)** 입니다. \
+> 그래서 1.5 에서 그룹 이름이 아니라 GUID 를 `GRP` 로 받아 두고, 3·4단계 설정에도 GUID 를 넣습니다.
+
+<details>
+<summary>왜 필요한가: 관리자 판별 방식</summary>
 
 로그인하면 Entra 가 발급하는 토큰(JWT) 안에 사용자 정보가 JSON 으로 들어 있습니다. \
 해당 단계를 적용하면 여기에 `groups` 항목이 생기고, 사용자가 속한 보안 그룹의 GUID 가 나열됩니다. \
@@ -118,23 +134,22 @@ Claude Apps Gateway와 관리 콘솔은 이 클레임만 보고 관리자를 판
 }
 ```
 
-위 예시에서 `2222bbbb-....` 가 어드민 그룹(1.5 에서 만드는 그룹)의 GUID 라면 이 사용자는 관리자입니다. \
-게이트웨이와 관리 콘솔은 로그인한 사용자의 `groups` 목록에 어드민 그룹 GUID 가 **있으면 관리자**, **없으면 일반 사용자**로 판단합니다.
+위 예시에서 `2222bbbb-....` 가 Admin Group (1.5 단계에서 만드는 그룹)의 GUID 라면 이 사용자는 관리자입니다. \
+Claude Apps Gateway와 관리 콘솔은 로그인한 사용자의 `groups` 목록에 어드민 그룹 GUID 가 **있으면 관리자**, **없으면 일반 사용자**로 판단합니다.
 
-비교 기준이 되는 어드민 그룹 GUID 는 배포 전에 각 설정에 넣어 둡니다.
+비교 기준이 되는 Admin Group GUID는 cdk 배포 전에 각 설정에 넣어 둡니다.
 
 | 구성 요소 | 비교 기준 설정 | 값을 넣는 단계 |
 | --- | --- | --- |
 | Claude Apps Gateway | `gateway/gateway.yaml` 의 `admin.admin_groups` | [4단계](04-deploy.md) `-c adminOktaGroupName="$GRP"` |
 | 관리 콘솔 | `admin-console/app/auth.py` 의 `ADMIN_GROUP_NAME` | [3단계](03-configure-source.md) |
 
-Entra 는 기본값으로 토큰에 그룹을 넣지 않습니다. 토큰에 `groups` 항목이 아예 없으면 비교할 대상이 없으므로 모든 사용자가 일반 사용자가 됩니다. 이 단계를 건너뛰면 1.5 에서 어드민 그룹에 넣은 사용자도 [6단계](06-verify.md) 콘솔 사인인에서 비관리자로 표시됩니다.
+Entra ID는 기본값으로 토큰에 그룹을 넣지 않습니다. 토큰에 `groups` 항목이 아예 없으면 비교할 대상이 없으므로 모든 사용자가 일반 사용자가 됩니다. 이 단계를 건너뛰면 1.5 에서 어드민 그룹에 넣은 사용자도 [6단계](06-verify.md) 콘솔 사인인에서 비관리자로 표시됩니다.
 
-```bash
-az rest --method PATCH --url "https://graph.microsoft.com/v1.0/applications/$OBJ" --body "{\"groupMembershipClaims\": \"SecurityGroup\", \"optionalClaims\": {\"idToken\": [{\"name\": \"groups\", \"essential\": false}], \"accessToken\": [{\"name\": \"groups\", \"essential\": false}]}}"
-```
+</details>
 
-성공하면 아무것도 출력하지 않습니다. 명령이 바꾸는 설정은 두 가지입니다.
+<details>
+<summary>명령이 바꾸는 설정</summary>
 
 | 설정 | 의미 |
 | --- | --- |
@@ -143,37 +158,45 @@ az rest --method PATCH --url "https://graph.microsoft.com/v1.0/applications/$OBJ
 
 포털에서 **앱 등록 → (앱) → 토큰 구성 → 그룹 클레임 추가 → 보안 그룹**을 선택하는 것과 같습니다.
 
-> [!IMPORTANT]
-> 토큰에 들어가는 값은 그룹 이름(`claude-gateway-admins`)이 아니라 그룹의 **object ID(GUID)** 입니다. \
-> 그래서 1.5 에서 그룹 이름이 아니라 GUID 를 `GRP` 로 받아 두고, 위 표의 두 설정에도 GUID 를 넣습니다.
+</details>
 
 ## 1.4 client secret 생성
+
+게이트웨이가 Entra 에 자신을 증명할 때 쓰는 client secret 을 만듭니다. secret 은 이때 한 번만 나옵니다. [4.3](04-deploy.md#43-컨텍스트-파일로-저장-선택)에서 파일로 저장합니다.
 
 > [!CAUTION]
 > `--append` 를 빼면 이 앱의 기존 자격증명이 전부 삭제됩니다.
 
-secret 은 이때 한 번만 나옵니다. [4.3](04-deploy.md#43-컨텍스트-파일로-저장-선택)에서 파일로 저장합니다.
-
+**Client Secret 생성 명령어**
 ```bash
 SECRET=$(az ad app credential reset --id "$APP" --append --display-name gateway --years 1 --query password -o tsv) && echo "secret 생성됨 (길이 ${#SECRET})"
 ```
+
+secret 값은 화면에 출력하지 않고 길이만 보여 줍니다.
 
 ## 1.5 어드민 그룹 생성
 
 관리 콘솔 관리자를 넣을 그룹을 만들고, 현재 계정을 추가합니다.
 
+**Admin Group 생성 명령어**
 ```bash
 GRP=$(az ad group create --display-name "claude-gateway-admins" --mail-nickname "claude-gateway-admins" --query id -o tsv) && az ad group member add --group "$GRP" --member-id "$(az ad signed-in-user show --query id -o tsv)" && echo "GRP=$GRP"
 ```
 
-다른 관리자 추가:
+<details>
+<summary>다른 관리자 추가</summary>
 
 ```bash
 az ad group member add --group "$GRP" --member-id "$(az ad user show --id <user@your-domain> --query id -o tsv)"
 ```
 
+</details>
+
 ## 1.6 issuer 확인
 
+게이트웨이가 토큰 발급자로 신뢰할 Entra v2 issuer 주소를 만듭니다.
+
+**Issuer 확인 명령어**
 ```bash
 ISSUER="https://login.microsoftonline.com/$(az account show --query tenantId -o tsv)/v2.0" && echo "ISSUER=$ISSUER"
 ```
@@ -182,6 +205,7 @@ ISSUER="https://login.microsoftonline.com/$(az account show --query tenantId -o 
 
 다섯 변수가 모두 채워졌는지 봅니다. secret 은 길이만 출력합니다.
 
+**변수 확인 명령어**
 ```bash
 echo "APP=$APP OBJ=$OBJ GRP=$GRP ISSUER=$ISSUER SECRET_LEN=${#SECRET}"
 ```
