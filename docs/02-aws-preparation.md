@@ -2,16 +2,14 @@
 
 리포를 받고, 리전·자격증명을 고정하고, 배포를 막는 두 가지(Bedrock 추론 프로파일, Aurora 버전)를 미리 확인합니다.
 
-![배포 전 PC 에서 확인하는 항목](images/02-aws-preparation.drawio.png)
-
 ## 2.1 리포 clone
 
 ```bash
 git clone https://github.com/ETS-DatadogSA/claude-apps-gateway-ets-guide.git && cd claude-apps-gateway-ets-guide
 ```
 
-> [!IMPORTANT]
-> 다른 수정이 섞인 트리로 배포하면 그 수정까지 올라갑니다. 배포용 트리는 새로 받습니다.
+> [!WARNING]
+> `gateway/`·`admin-console/` 는 로컬 트리에서 그대로 패키징됩니다. 다른 수정이 섞인 트리로 배포하면 그 수정까지 올라가므로 배포용 트리는 새로 받습니다.
 
 ## 2.2 의존성과 번들러
 
@@ -33,9 +31,6 @@ cd cdk && npm install && npm install --save-dev esbuild@^0.21 && cd ..
 
 ```bash
 export AWS_REGION=us-east-1 AWS_DEFAULT_REGION=us-east-1 CDK_DEFAULT_REGION=us-east-1
-```
-
-```bash
 aws sts get-caller-identity
 ```
 
@@ -47,17 +42,12 @@ CDK 는 `aws` CLI 의 세션 캐시를 공유하지 않습니다. CLI 세션을 
 
 ```bash
 aws sts get-caller-identity --profile <admin-profile>
-```
-
-```bash
 unset AWS_PROFILE && eval "$(aws configure export-credentials --profile <admin-profile> --format env)" && export CDK_DEFAULT_ACCOUNT=$(aws sts get-caller-identity --query Account --output text) && aws sts get-caller-identity
 ```
 
 - 마지막 출력이 `assumed-role/...` 이어야 합니다. IAM 사용자 ARN 이 나오면 `eval` 줄을 다시 실행합니다.
 - TOTP 코드는 공백 없이 여섯 자리로 넣습니다.
-
-> [!WARNING]
-> 세션은 기본 1시간 뒤 만료되고 자동 갱신되지 않습니다. 배포가 25~35분이므로 **배포 직전에** 인증합니다.
+- 세션은 기본 1시간 뒤 만료되고 자동 갱신되지 않습니다. 배포가 25~35분이므로 **배포 직전에** 인증합니다.
 
 ## 2.4 Bedrock 추론 프로파일 확인
 

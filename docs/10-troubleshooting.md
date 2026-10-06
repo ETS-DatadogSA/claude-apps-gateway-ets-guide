@@ -1,7 +1,5 @@
 # 10. 문제 해결
 
-![단계별로 자주 막히는 지점](images/10-troubleshooting.drawio.png)
-
 | 증상 | 원인 | 조치 |
 | --- | --- | --- |
 | 사인인 페이지가 오류 없이 멈춤 | VPN 미연결, 또는 full-tunnel | [5.1](05-vpn-and-redirect.md#51-vpn-연결) |

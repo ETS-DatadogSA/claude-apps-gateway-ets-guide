@@ -45,9 +45,7 @@ AWS CDK CLI 는 `cdk/package.json` 에 들어 있어 따로 설치하지 않습�
 
 ### 설치 방법
 
-> [!NOTE]
-> - macOS 는 [Homebrew](https://brew.sh), Windows 는 winget 으로 설치합니다.
-> - Windows 는 이후 모든 명령을 Git Bash 에서 실행합니다. Windows 전체 절차는 아직 검증하지 않았습니다.
+macOS 는 [Homebrew](https://brew.sh), Windows 는 winget 으로 설치합니다. Windows 는 이후 모든 명령을 Git Bash 에서 실행합니다(Windows 전체 절차는 미검증).
 
 #### macOS
 
@@ -83,21 +81,18 @@ winget install --id Docker.DockerDesktop -e
 | Amazon Bedrock | Anthropic 모델 [모델 액세스](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html), `us.anthropic.*` 추론 프로파일 | [2.4](docs/02-aws-preparation.md#24-bedrock-추론-프로파일-확인) |
 | Microsoft Entra ID | 앱 등록·그룹 생성 권한 | [1.1](docs/01-entra-id.md#11-로그인) |
 
-> [!TIP]
-> 필요한 도구를 한 번에 확인합니다. 없는 도구에서 멈춥니다.
->
-> ```bash
-> node --version && aws --version && az version --output table && jq --version
-> ```
+설치 확인(없는 도구에서 멈춥니다):
 
+```bash
+node --version && aws --version && az version --output table && jq --version
+```
 
 ## 배포 방법
 
-명령은 운영자 PC 에서 실행하고, 리소스는 배포 계정 us-east-1 에 CloudFormation 스택 7개로 올라갑니다. 컨테이너 이미지는 AWS 안의 임시 EC2 가 빌드합니다.
+명령은 운영자 PC 에서 실행하고, 리소스는 배포 계정 us-east-1 에 CloudFormation 스택 7개로 올라갑니다. \
+컨테이너 이미지는 AWS 안의 임시 EC2 가 빌드합니다.
 
 ![Claude Apps Gateway on AWS — Entra ID 배포 구성](docs/architecture.drawio.png)
-
-구성 요소와 흐름은 [docs/architecture.md](docs/architecture.md), 편집용 파일은 [docs/architecture.drawio](docs/architecture.drawio) 입니다.
 
 | 항목 | 값 |
 | --- | --- |
@@ -109,8 +104,23 @@ winget install --id Docker.DockerDesktop -e
 | Lambda 번들링 | 운영자 PC (`esbuild`, 없으면 Docker) |
 | 접속 경로 | 게이트웨이는 VPN 으로만 접근. 관리 콘솔은 퍼블릭이지만 사인인에 VPN 필요 |
 
-> [!IMPORTANT]
-> `gateway/`·`admin-console/` 는 PC 의 로컬 트리에서 그대로 패키징됩니다. 다른 수정이 섞이지 않도록 배포용 트리는 새로 clone 합니다.
+<details>
+<summary>요청 흐름과 배포 흐름</summary>
+
+**요청 흐름**
+
+1. 개발자는 Client VPN(split-tunnel, 클라이언트 CIDR `10.100.0.0/16`)으로 내부 ALB 를 거쳐 게이트웨이에 닿습니다.
+2. 게이트웨이는 사용자 인증을 Entra ID 에 OIDC 로 위임합니다. Entra 로 나가는 트래픽은 NAT Gateway 를 지납니다.
+3. 게이트웨이는 VPC 엔드포인트(`bedrock-runtime`)로 Bedrock 의 `us.anthropic.*` 프로파일을 호출합니다.
+4. 사용량·한도는 Aurora 에, 비밀값은 Secrets Manager(VPC 엔드포인트)에서 읽습니다.
+5. 관리자는 인터넷용 ALB 로 관리 콘솔에 접속하고, 콘솔은 게이트웨이 관리 API 를 호출합니다.
+
+**배포 흐름**
+
+1. 운영자 PC 의 `npx cdk deploy --all` 로 CloudFormation 이 스택 7개를 만듭니다.
+2. 임시 BuildMachine EC2(퍼블릭 서브넷, t3.small)가 S3 에 올라간 소스로 이미지를 빌드해 ECR 리포 2개에 푸시하고 종료됩니다.
+3. ECS Express Mode 가 두 서비스와 각자의 ALB(게이트웨이는 내부용, 콘솔은 인터넷용)를 만듭니다.
+</details>
 
 <details>
 <summary>게이트웨이는 프라이빗, 관리 콘솔은 퍼블릭인 이유</summary>
@@ -126,7 +136,7 @@ winget install --id Docker.DockerDesktop -e
 | `README.md`, `docs/01`~`10` | 이 가이드 |
 | `admin-console/`, `cdk/`, `gateway/` | 배포 소스. 바꾼 곳은 [3단계](docs/03-configure-source.md) 참고 |
 | `docs/original/` | 원본 리포의 README·문서·이미지·LICENSE(MIT-0). 소스 주석의 `docs/0N-*.md` 는 이 폴더를 가리킴 |
-| `docs/images/`, `docs/architecture.*` | 다이어그램 |
+| `docs/architecture.drawio`, `docs/images/` | 다이어그램 편집용 파일. 수정 후 `draw.io -x -f png -e -b 20 -s 2 -o <파일>.drawio.png <파일>.drawio` 로 다시 찍음 |
 
 ## 배포되는 스택
 
@@ -141,17 +151,14 @@ winget install --id Docker.DockerDesktop -e
 | `ClaudeGatewayVpnStack` | AWS Client VPN 엔드포인트, 상호 TLS 인증서, `.ovpn` 프로필 |
 
 <details>
-<summary>이미지를 로컬이 아니라 EC2 에서 빌드하는 이유</summary>
-
-게이트웨이 Dockerfile 이 x86_64 전용 바이너리를 내려받습니다. Apple Silicon 에서 로컬로 빌드하면 Fargate 가 실행할 수 없는 이미지가 됩니다.
-</details>
-
-## 들어 있는 것
+<summary>원본 구현의 특징</summary>
 
 - **게이트웨이**: 빌드 시점에 `claude` 바이너리를 내려받아 GPG 서명과 SHA256 체크섬으로 검증합니다.
-- **관리 콘솔**(FastAPI): 사용액 대시보드, 비용 한도 관리, 모델 접근 관리. 모델 목록은 Bedrock 카탈로그에서 실시간으로 가져오고, 변경은 재빌드 없이 적용됩니다. → [7. 관리 콘솔 사용법](docs/07-admin-console.md)
+- **관리 콘솔**(FastAPI): 모델 목록을 Bedrock 카탈로그에서 실시간으로 가져오고, 변경은 재빌드 없이 적용됩니다. → [7장](docs/07-admin-console.md)
 - **Client VPN**: 상호 TLS 인증서와 `.ovpn` 프로필을 배포 중에 만들어 Secrets Manager 에 넣어 둡니다. PKI 를 따로 구성할 필요가 없습니다.
 - **CDK 앱**: ECS Express Mode 서비스를 CDK 네이티브 L1 구성(`CfnExpressGatewayService`)으로 만듭니다.
+- **이미지 빌드**: 게이트웨이 Dockerfile 이 x86_64 전용 바이너리를 받기 때문에 EC2 에서 빌드합니다. Apple Silicon 에서 로컬로 빌드하면 Fargate 가 실행할 수 없습니다.
+</details>
 
 ## 관리 콘솔 화면
 

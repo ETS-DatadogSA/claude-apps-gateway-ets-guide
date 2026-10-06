@@ -2,8 +2,6 @@
 
 게이트웨이용 Entra 앱과 어드민 그룹을 만들고, 배포에 쓸 값을 셸 변수로 확보합니다. 모든 명령은 Azure CLI(`az`)로 실행합니다.
 
-![Entra ID 앱 등록 결과물과 CDK 컨텍스트](images/01-entra-id.drawio.png)
-
 | 변수 | 내용 | 쓰이는 곳 |
 | --- | --- | --- |
 | `APP` | 앱(client) ID | CDK 컨텍스트 `oidcClientId` |
@@ -18,9 +16,6 @@
 
 ```bash
 az login
-```
-
-```bash
 az account show --query "{tenant:tenantId, user:user.name}" -o table
 ```
 
@@ -30,13 +25,7 @@ az account show --query "{tenant:tenantId, user:user.name}" -o table
 
 ```bash
 APP=$(az ad app create --display-name "Claude Apps Gateway" --sign-in-audience AzureADMyOrg --web-redirect-uris "https://placeholder.invalid/oauth/callback" --query appId -o tsv) && echo "APP=$APP"
-```
-
-```bash
 OBJ=$(az ad app show --id "$APP" --query id -o tsv) && echo "OBJ=$OBJ"
-```
-
-```bash
 az ad sp create --id "$APP"
 ```
 

@@ -2,8 +2,6 @@
 
 원본은 Okta 기준이라 설정 세 곳이 Entra 와 맞지 않습니다. 두 곳은 이 리포에 이미 반영돼 있고, 어드민 그룹 GUID 한 곳만 직접 채웁니다. 리포 루트에서 실행합니다.
 
-![그룹 GUID 가 관리자 판정까지 가는 길](images/03-configure-source.drawio.png)
-
 | 위치 | 원본 값 | 이 리포 값 | 이유 |
 | --- | --- | --- | --- |
 | `gateway/gateway.yaml` `oidc.userinfo_fallback` | `true` | `false` (반영됨) | Entra 의 userinfo 는 groups 를 주지 않음 |
@@ -55,10 +53,8 @@ scopes: [openid, profile, email, offline_access]
 ADMIN_GROUP_NAME = "<GRP 의 GUID>"
 ```
 
-> [!CAUTION]
-> `auth.py` 의 GUID 는 테넌트 고유값이라 커밋하지 않습니다. 되돌리려면 `git checkout -- admin-console/app/auth.py`.
+`auth.py` 의 GUID 는 테넌트 고유값이라 커밋하지 않습니다. 되돌리려면 `git checkout -- admin-console/app/auth.py`.
 
-> [!NOTE]
-> App Roles 를 쓰는 대안도 있습니다. App Role 을 정의하고 `gateway.yaml` 에 `oidc.groups_claim: roles` 를 두면 GUID 대신 role 값이 들어옵니다. 이 가이드에서는 검증하지 않았습니다.
+App Roles 를 쓰는 대안도 있습니다. App Role 을 정의하고 `gateway.yaml` 에 `oidc.groups_claim: roles` 를 두면 GUID 대신 role 값이 들어옵니다(이 가이드에서는 미검증).
 
 다음: [4. CDK 배포](04-deploy.md)

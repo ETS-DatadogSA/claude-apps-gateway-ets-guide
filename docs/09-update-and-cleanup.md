@@ -1,7 +1,5 @@
 # 9. 업데이트와 삭제
 
-![업데이트와 삭제 시 바뀌는 것과 남는 것](images/09-update-and-cleanup.drawio.png)
-
 ## 9.1 업데이트
 
 변경을 받아 와 재배포합니다. 로컬의 GUID 수정([3.1](03-configure-source.md#31-관리-콘솔의-어드민-그룹-지정))은 `--autostash` 가 잠시 치웠다가 되살립니다.
@@ -58,7 +56,6 @@ ECR 리포 2개도 `emptyOnDelete` 로 이미지째 지워집니다. 원본 [05-
 az ad app delete --id "$APP" && az ad group delete --group "$GRP"
 ```
 
-> [!CAUTION]
-> 로컬의 `cdk/cdk.context.json`(secret)과 `claude-gateway-vpn-client.ovpn`(VPN 키)은 더 쓰지 않으면 지웁니다.
+로컬의 `cdk/cdk.context.json`(secret)과 `claude-gateway-vpn-client.ovpn`(VPN 키)도 더 쓰지 않으면 지웁니다.
 
 다음: [10. 문제 해결](10-troubleshooting.md)

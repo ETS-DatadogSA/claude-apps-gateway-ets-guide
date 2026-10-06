@@ -2,13 +2,10 @@
 
 기본으로 모든 모델은 `us.anthropic.*` 크로스리전 추론 프로파일로 갑니다. 특정 모델만 **커스텀 Bedrock 추론 프로파일**로 보내는 방법입니다. 원본은 [original/06-custom-inference-profile.md](original/06-custom-inference-profile.md) 입니다.
 
-![기본 프로파일과 커스텀 프로파일로 갈리는 요청 경로](images/08-custom-inference-profile.drawio.png)
-
 - 주로 비용 배분용 [application inference profile](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-profiles-support.html), 프로비저닝된 처리량, 가드레일을 붙인 프로파일에 씁니다.
 - 모델마다 다른 프로파일을 지정할 수 있고, 지정하지 않은 모델은 기본 프로파일을 그대로 씁니다.
 
-> [!TIP]
-> `us.anthropic.*` 프로파일이 없는 리전에 배포할 때도 이 방법을 쓰면 됩니다. 같은 계정의 application inference profile 은 리전과 관계없이 IAM 이 이미 허용합니다([8.4](#84-iam--추가할-것-없음)).
+- `us.anthropic.*` 프로파일이 없는 리전에 배포할 때도 이 방법을 씁니다. 같은 계정의 application inference profile 은 리전과 관계없이 IAM 이 이미 허용합니다([8.4](#84-iam--추가할-것-없음)).
 
 ## 8.1 시작 전에 필요한 것
 
@@ -51,9 +48,7 @@ models:
 - `upstream_model` 의 키는 `bedrock` 으로 둡니다(`upstreams:` 항목에 `name:` 이 없어 provider 이름이 기본값).
 - `id:` 는 게이트웨이 모델 ID 입니다. ARN 과 맞출 필요 없습니다.
 - 환경변수나 CDK 컨텍스트와 무관한 순수 YAML 입니다.
-
-> [!WARNING]
-> 게이트웨이는 부팅 때 설정 전체를 검증합니다. 들여쓰기가 틀리거나 `id:` 가 중복되면 기동에 실패합니다. [3단계](03-configure-source.md)의 `oidc` 설정도 그대로인지 확인합니다.
+- 게이트웨이는 부팅 때 설정 전체를 검증합니다. 들여쓰기가 틀리거나 `id:` 가 중복되면 기동에 실패합니다. [3단계](03-configure-source.md)의 `oidc` 설정도 그대로인지 확인합니다.
 
 ## 8.3 허용 목록에 모델 켜기 (아직 꺼져 있다면)
 
@@ -77,8 +72,7 @@ taskRole.addToPolicy(new iam.PolicyStatement({
 }));
 ```
 
-> [!NOTE]
-> 프로파일이 **다른 AWS 계정**에 있으면 허용 범위 밖입니다. 그 프로파일 ARN 을 명시한 구문과 상대 계정의 교차 계정 허용이 필요하며, 이 가이드의 범위를 벗어납니다.
+프로파일이 **다른 AWS 계정**에 있으면 허용 범위 밖입니다. 그 ARN 을 명시한 구문과 상대 계정의 교차 계정 허용이 필요하며, 이 가이드의 범위를 벗어납니다.
 
 ## 8.5 재빌드와 재배포
 
@@ -103,8 +97,7 @@ npx cdk deploy ClaudeGatewayBuildMachineStack ClaudeGatewayStack -c oidcIssuer="
 | 3. Bedrock 호출 로그 | [모델 호출 로깅](https://docs.aws.amazon.com/bedrock/latest/userguide/model-invocation-logging.html) (켠 경우) | `modelId` 가 커스텀 프로파일 ARN |
 | 4. 사용액 | 관리 콘솔 `/spend/dashboard` | 해당 모델 사용량이 정상 집계 |
 
-> [!NOTE]
-> 1번 경고는 정상입니다. 게이트웨이가 커스텀 ARN 을 읽었다는 뜻이고, 내부 단가표에만 영향이 있습니다. 사용량은 4번처럼 정상 집계됩니다.
+1번 경고는 정상입니다. 게이트웨이가 커스텀 ARN 을 읽었다는 뜻이고 내부 단가표에만 영향이 있습니다. 사용량은 4번처럼 정상 집계됩니다.
 
 <details>
 <summary>로그 예시</summary>
@@ -132,7 +125,7 @@ Bedrock 호출 로그:
 
 | 증상 | 원인 | 조치 |
 | --- | --- | --- |
-| `bedrock:InvokeModel` 에서 `AccessDeniedException` | 8.5 재배포 전이거나, 프로파일이 다른 계정에 있음 | 재배포 확인, 다른 계정이면 8.4 NOTE |
+| `bedrock:InvokeModel` 에서 `AccessDeniedException` | 8.5 재배포 전이거나, 프로파일이 다른 계정에 있음 | 재배포 확인, 다른 계정이면 8.4 참고 |
 | `/v1/messages` 에서 `400` | 허용 목록에 모델이 없음 | 8.3 |
 | 게이트웨이 기동 실패, `models` 관련 설정 오류 | YAML 들여쓰기, `id:` 중복 | 예시와 같은 들여쓰기, `id:` 중복 확인 |
 
