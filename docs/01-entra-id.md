@@ -234,7 +234,11 @@ GRP=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 `GRP=` 뒤에 GUID 가 나오면 성공입니다.
 
 ### 포털에서 확인하는 방법
-**Microsoft Entra ID → 관리 → 그룹 → 모든 그룹 → claude-gateway-admins → 관리 → 구성원**에 현재 계정이 보입니다.
+**Microsoft Entra ID → 관리 → 그룹 → 모든 그룹**에 그룹 유형이 `보안` 인 `claude-gateway-admins` 가 보입니다.
+
+![모든 그룹의 어드민 그룹](images/01-admin-group-list.png)
+
+그룹을 열고 **관리 → 구성원**에 현재 계정이 보입니다.
 
 ![어드민 그룹 구성원](images/01-admin-group-members.png)
 
