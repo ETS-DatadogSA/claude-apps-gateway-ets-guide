@@ -242,32 +242,6 @@ GRP=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 ![어드민 그룹 구성원](images/01-admin-group-members.png)
 
-> [!WARNING]
-> 같은 이름의 그룹이 이미 있으면 새로 만들지 않고 **기존 그룹을 돌려줍니다.** 출력은 현재 계정이 그 그룹의 구성원인지에 따라 다릅니다.
->
-> **구성원이 아닐 때**: 구성원으로 추가되고 기존 그룹의 GUID 가 출력됩니다.
->
-> ```text
-> WARNING: A group with the same display name and mail nickname already exists, returning.
-> GRP=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-> ```
->
-> **이미 구성원일 때**: 구성원 추가가 실패해 `GRP=` 줄이 출력되지 않습니다. 이때도 `$GRP` 에는 기존 그룹 GUID 가 들어 있습니다.
->
-> ```text
-> WARNING: A group with the same display name and mail nickname already exists, returning.
-> One or more added object references already exist for the following modified properties: 'members'.
-> ```
->
-> 두 경우 모두 기존 그룹을 그대로 쓸지, **그룹 → 모든 그룹**에서 그룹을 선택해 **삭제**하고 다시 실행할지 정합니다. 그룹 안의 **구성원** 화면에서 지우면 구성원만 빠지고 그룹은 남습니다.
->
-> 그룹을 삭제한 직후에 다시 실행하면, 삭제가 반영되기 전이라 지워진 그룹 ID 를 돌려받고 구성원 추가에서 실패할 수 있습니다. 잠시 기다렸다가 다시 실행합니다.
->
-> ```text
-> WARNING: A group with the same display name and mail nickname already exists, returning.
-> Resource 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' does not exist or one of its queried reference-property objects are not present.
-> ```
-
 <details>
 <summary>다른 관리자 추가</summary>
 
@@ -290,10 +264,17 @@ az ad group member add --group "$GRP" --member-id "$(az ad user show --id <user@
 Claude Apps Gateway는 토큰을 발급한 곳(issuer)이 설정된 주소와 같을 때만 토큰을 믿습니다. \
 테넌트 ID 로 Entra ID v2 issuer 주소를 만듭니다.
 
-**Issuer 확인 명령어**
+### Issuer 확인 명령어
 ```bash
 ISSUER="https://login.microsoftonline.com/$(az account show --query tenantId -o tsv)/v2.0" && echo "ISSUER=$ISSUER"
 ```
+
+### Issuer 확인 결과 예시
+```text
+ISSUER=https://login.microsoftonline.com/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/v2.0
+```
+
+가운데 GUID 가 1.1 에서 확인한 테넌트 ID 와 같고, 끝이 `/v2.0` 이면 됩니다.
 
 ## 1.7 확인
 
