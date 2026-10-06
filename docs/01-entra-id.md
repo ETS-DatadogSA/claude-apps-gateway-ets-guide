@@ -97,16 +97,19 @@ OBJ=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy
 
 ![앱 개요](images/01-app-overview.png)
 
-## 1.3 groups 클레임 활성화
+## 1.3 groups claim 활성화
 
 로그인 토큰에 사용자가 속한 그룹 목록(`groups` 클레임)을 넣도록 앱 설정을 바꿉니다. \
 Claude Apps Gateway와 관리 콘솔은 이 클레임만 보고 관리자를 판단합니다.
 
-로그인하면 Entra 가 발급하는 토큰(JWT) 안에 사용자 정보가 JSON 으로 들어 있습니다. 1.3 을 적용하면 여기에 `groups` 항목이 생기고, 사용자가 속한 보안 그룹의 GUID 가 나열됩니다.
+로그인하면 Entra 가 발급하는 토큰(JWT) 안에 사용자 정보가 JSON 으로 들어 있습니다. \
+해당 단계를 적용하면 여기에 `groups` 항목이 생기고, 사용자가 속한 보안 그룹의 GUID 가 나열됩니다. \
+아래는 JWT에 들어있는 사용자 정보의 예시입니다.
 
+**JWT 사용자 정보 예시**
 ```json
 {
-  "email": "alice@contoso.com",
+  "email": "sample@example.com",
   "name": "Alice",
   "groups": [
     "1111aaaa-....",
@@ -115,7 +118,8 @@ Claude Apps Gateway와 관리 콘솔은 이 클레임만 보고 관리자를 판
 }
 ```
 
-배포할 때 어드민 그룹의 GUID(1.5 의 `GRP`, 위 예시에서는 `2222bbbb-....`)를 아래 두 곳에 알려 줍니다. 로그인한 사용자의 `groups` 목록에 이 GUID 가 **있으면 관리자**, **없으면 일반 사용자**로 판단합니다.
+배포할 때 Admin Group 내의 GUID(1.5 의 `GRP`, 위 예시에서는 `2222bbbb-....`)를 아래 두 곳에 알려 줍니다. \
+로그인한 사용자의 `groups` 목록에 이 GUID 가 **있을 경우 관리자**, **없을 경우 일반 사용자**로 판단합니다.
 
 - Claude Apps Gateway: `gateway/gateway.yaml` 의 `admin.admin_groups`
 - 관리 콘솔: `admin-console/app/auth.py` 의 `ADMIN_GROUP_NAME`
