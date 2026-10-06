@@ -3,9 +3,11 @@
 > Entra ID 연동의 경우 구성되어 있는 Entra의 환경에 따라 OIDC 연동 방법이 다를 수 있습니다. \
 > 해당 레포지터리의 Entra ID 연동의 경우 최소한의 구성을 기준으로 테스트 되었습니다.
 
-[aws-samples/sample-claude-apps-gateway-on-aws](https://github.com/aws-samples/sample-claude-apps-gateway-on-aws)를 **Microsoft Entra ID**를 IdP 로, **us-east-1** 리전에 배포하는 절차입니다. 결과물은 Amazon Bedrock 앞단의 Claude apps gateway, 관리 콘솔, 접속용 AWS Client VPN 입니다.
+[aws-samples/sample-claude-apps-gateway-on-aws](https://github.com/aws-samples/sample-claude-apps-gateway-on-aws)를 **Microsoft Entra ID**를 IdP 로, **us-east-1** 리전에 배포하는 절차입니다. \
+결과물은 Amazon Bedrock 앞단의 Claude apps gateway, 관리 콘솔, 접속용 AWS Client VPN 입니다.
 
-원본 리포의 문서([docs/original/](docs/original/README.md))는 Okta 기준입니다. 이 가이드는 원본 문서의 내용을 옮기면서 Entra 로 갈 때 달라지는 지점과 배포가 실제로 어디서 일어나는지를 더해, Entra 앱을 만드는 단계부터 끝까지 다룹니다.
+원본 리포의 문서([docs/original/](docs/original/README.md))는 Okta 기준입니다. \
+이 가이드는 원본 문서의 내용을 옮기면서 Entra 로 갈 때 달라지는 지점과 배포가 실제로 어디서 일어나는지를 더해, Entra 앱을 만드는 단계부터 끝까지 다룹니다.
 
 ## 문서 순서
 
@@ -27,7 +29,38 @@
 | 9 | [업데이트와 삭제](docs/09-update-and-cleanup.md) | 재배포, `cdk destroy`, Entra 정리 |
 | 10 | [문제 해결](docs/10-troubleshooting.md) | 증상별 원인과 조치 |
 
-## 어디서 배포하나
+## Requirement
+
+### 로컬 도구
+
+| 도구 | 버전 | 어디에 쓰나 | 확인 명령 |
+| --- | --- | --- | --- |
+| Node.js | 20 이상 | CDK 실행 (`npx cdk`) | `node --version` |
+| AWS CLI | v2 | 자격증명 확인, 스택 출력값·VPN 프로필 조회 | `aws --version` |
+| Azure CLI (`az`) | - | Entra 앱·그룹 생성 ([1단계](docs/01-entra-id.md)) | `az version` |
+| `jq` | - | VPN 프로필 추출, 컨텍스트 파일 저장·복원 | `jq --version` |
+| Docker 또는 `esbuild` | `esbuild` 는 `^0.21` | Lambda 번들링 ([2.2](docs/02-aws-preparation.md#22-의존성과-번들러)) | `docker info` 또는 `cdk/` 에서 `npx esbuild --version` |
+| AWS VPN Client | - | 프라이빗 게이트웨이 접속 ([5단계](docs/05-vpn-and-redirect.md)) | - |
+
+AWS CDK CLI 는 따로 설치하지 않아도 됩니다. `cdk/package.json` 에 들어 있어 `npm install` 뒤 `npx cdk` 로 실행합니다.
+
+### 계정과 권한
+
+| 대상 | 필요한 것 | 확인 위치 |
+| --- | --- | --- |
+| AWS | IAM 롤을 만들 수 있는 자격증명. 스택이 롤 10개, `cdk bootstrap` 이 롤 5개를 만듭니다 | [2.3](docs/02-aws-preparation.md#23-리전과-자격증명-고정) |
+| Amazon Bedrock | 쓰려는 Anthropic Claude 모델의 [모델 액세스](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html)와 `us.anthropic.*` 추론 프로파일 | [2.4](docs/02-aws-preparation.md#24-bedrock-추론-프로파일-확인) |
+| Microsoft Entra ID | 앱 등록과 그룹 생성이 가능한 계정 | [1.1](docs/01-entra-id.md#11-로그인) |
+
+> [!TIP]
+> 로컬 도구는 한 번에 확인할 수 있습니다. 하나라도 없으면 그 자리에서 멈춥니다.
+>
+> ```bash
+> node --version && aws --version && az version --output table && jq --version
+> ```
+
+
+## 배포 방법
 
 명령은 운영자 PC 의 이 리포 clone 에서 실행하고, 실제 리소스는 배포 계정의 us-east-1 에 CloudFormation 스택
 7개로 올라갑니다. 컨테이너 이미지는 PC 가 아니라 AWS 안의 임시 EC2 가 빌드합니다.
@@ -104,13 +137,6 @@ Entra 그룹 소속으로 접근을 통제합니다. 다만 사인인 과정에�
 
 ![관리 콘솔 모델 접근](docs/original/images/admin-console-model-access.png)
 
-## 준비물
-
-- Node 20 이상, AWS CLI v2, Azure CLI(`az`), `jq`, AWS VPN Client
-- Docker 데몬 또는 로컬 `esbuild` (Lambda 번들링용, [2단계](docs/02-aws-preparation.md) 참고)
-- IAM 롤 생성 권한이 있는 AWS 자격증명
-- 앱 등록과 그룹 생성이 가능한 Entra ID 계정
-- 쓰려는 Anthropic Claude 모델에 대한 [Amazon Bedrock 모델 액세스](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html)
 
 ## 비용
 
