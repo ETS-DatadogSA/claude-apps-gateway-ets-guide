@@ -71,6 +71,7 @@ unset AWS_PROFILE && eval "$(aws configure export-credentials --profile <admin-p
 aws bedrock list-inference-profiles --query "inferenceProfileSummaries[?starts_with(inferenceProfileId,'us.anthropic')].inferenceProfileId" --output table
 ```
 
+> [!WARNING]
 > `us.anthropic.*` 프로파일이 없는 리전(예: `ap-northeast-2`)에 배포하면 **배포는 성공하고 추론에서 실패**합니다.
 > 게이트웨이 IAM 정책은 배포 리전의 `inference-profile/us.anthropic.*` 시스템 프로파일과, 같은 계정의 application
 > inference profile(리전 무관)만 허용합니다. 그런 리전에서는 application inference profile 을 만들어

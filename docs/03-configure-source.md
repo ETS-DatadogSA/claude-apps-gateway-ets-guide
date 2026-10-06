@@ -51,6 +51,7 @@ ADMIN_GROUP_NAME = "<GRP 의 GUID>"
 git checkout -- admin-console/app/auth.py
 ```
 
+> [!NOTE]
 > App Roles 를 쓰는 방법도 있습니다. Entra 앱에 App Role 을 정의하고 `gateway.yaml` 에 `oidc.groups_claim: roles`
 > 를 두면 claim 에 GUID 가 아닌 role 값이 들어옵니다. role 이름을 고정값으로 정하면 `auth.py` 를 배포마다 고치지
 > 않아도 될 수 있으나, 이 가이드에서는 검증하지 않았습니다.

@@ -48,6 +48,7 @@ npx cdk deploy --all -c oidcIssuer="$ISSUER" -c oidcClientId="$APP" -c oidcClien
 원본의 이전 설계는 빈 자리표시자로 배포한 뒤 나중에 채우게 했는데, 게이트웨이가 매번 크래시루프에 빠졌습니다. ECS Express
 Mode 가 포기하면 CloudFormation 이 스택 전체를 롤백해서 고칠 기회조차 없었습니다.
 
+> [!WARNING]
 > `oidcClientSecret` 은 `cdk.context.json` 과 합성된 템플릿(`cdk.out/ClaudeGatewaySecretsStack.template.json`)에
 > 평문으로 남고, 이 계정의 CloudFormation 콘솔·API 를 읽을 수 있는 사람에게도 보입니다. 원본 코드가
 > `SecretValue.unsafePlainText` 로 넘기기 때문입니다. 참조·PoC 용 패턴이며 운영 배포에는 맞지 않습니다. 운영에서는

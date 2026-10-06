@@ -53,8 +53,11 @@ az rest --method PATCH --url "https://graph.microsoft.com/v1.0/applications/$OBJ
 
 ## 1.4 client secret 생성
 
-**`--append` 를 빼면 이 앱의 기존 자격증명이 전부 삭제됩니다.** secret 값은 이때 한 번만 나오므로 셸 변수에
-담아 두고, [4단계](04-deploy.md#43-컨텍스트-파일로-저장-선택)에서 파일로 저장합니다.
+> [!CAUTION]
+> `--append` 를 빼면 이 앱의 기존 자격증명이 전부 삭제됩니다.
+
+secret 값은 이때 한 번만 나오므로 셸 변수에 담아 두고, [4단계](04-deploy.md#43-컨텍스트-파일로-저장-선택)에서 파일로
+저장합니다.
 
 ```bash
 SECRET=$(az ad app credential reset --id "$APP" --append --display-name gateway --years 1 --query password -o tsv) && echo "secret 생성됨 (길이 ${#SECRET})"
