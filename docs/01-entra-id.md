@@ -32,7 +32,7 @@ No     Subscription name     Subscription ID                       Tenant
 
 Select a subscription and tenant (Type a number or Enter for no changes): 1
 ```
-[!ALERT]
+> [!TIP]
 > 개인 계정으로 Azure 에 가입하면 `기본 디렉터리` 테넌트가 자동으로 생기고, 가입한 계정이 그 테넌트의 관리자가 됩니다. \
 > 구독이 없는 테넌트에는 `az login --allow-no-subscriptions` 로 로그인합니다. 선택한 테넌트와 계정을 확인합니다.
 
