@@ -233,6 +233,11 @@ GRP=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 `GRP=` 뒤에 GUID 가 나오면 성공입니다.
 
+### 포털에서 확인하는 방법
+**Microsoft Entra ID → 관리 → 그룹 → 모든 그룹 → claude-gateway-admins → 관리 → 구성원**에 현재 계정이 보입니다.
+
+![어드민 그룹 구성원](images/01-admin-group-members.png)
+
 > [!WARNING]
 > 같은 이름의 그룹이 이미 있으면 새로 만들지 않고 **기존 그룹을 돌려줍니다.** 현재 계정이 이미 멤버라면 멤버 추가가 실패해 `GRP=` 줄이 출력되지 않습니다.
 >
@@ -241,7 +246,7 @@ GRP=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 > One or more added object references already exist for the following modified properties: 'members'.
 > ```
 >
-> 이때도 `$GRP` 에는 기존 그룹 GUID 가 들어 있습니다. 기존 그룹을 그대로 쓸지, **그룹 → 모든 그룹**에서 그룹을 선택해 **삭제**하고 다시 실행할지 정합니다. 그룹 안의 **멤버** 화면에서 지우면 멤버만 빠지고 그룹은 남습니다.
+> 이때도 `$GRP` 에는 기존 그룹 GUID 가 들어 있습니다. 기존 그룹을 그대로 쓸지, **그룹 → 모든 그룹**에서 그룹을 선택해 **삭제**하고 다시 실행할지 정합니다. 그룹 안의 **구성원** 화면에서 지우면 구성원만 빠지고 그룹은 남습니다.
 
 <details>
 <summary>다른 관리자 추가</summary>
