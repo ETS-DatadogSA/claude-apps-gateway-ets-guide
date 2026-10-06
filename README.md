@@ -44,6 +44,46 @@
 
 AWS CDK CLI 는 따로 설치하지 않아도 됩니다. `cdk/package.json` 에 들어 있어 `npm install` 뒤 `npx cdk` 로 실행합니다.
 
+### 설치
+
+#### macOS
+
+[Homebrew](https://brew.sh) 기준입니다.
+
+```bash
+brew install node awscli azure-cli jq
+```
+
+```bash
+brew install --cask aws-vpn-client docker-desktop
+```
+
+Docker 는 Lambda 번들링에만 씁니다. [2.2](docs/02-aws-preparation.md#22-의존성과-번들러)에서 `esbuild` 를 넣을 거라면
+`docker-desktop` 은 빼도 됩니다.
+
+#### Windows
+
+가이드의 명령은 모두 bash 문법이라 PowerShell 에서는 실행되지 않습니다. 도구는 PowerShell 에서 winget 으로 설치하고,
+이후 모든 단계는 **Git Bash** 에서 진행합니다. winget 으로 설치한 도구는 Git Bash 에서도 그대로 쓸 수 있습니다.
+
+```powershell
+winget install --id Git.Git -e
+winget install --id OpenJS.NodeJS.LTS -e
+winget install --id Amazon.AWSCLI -e
+winget install --id Microsoft.AzureCLI -e
+winget install --id jqlang.jq -e
+winget install --id Amazon.AWSVPNClient -e
+winget install --id Docker.DockerDesktop -e
+```
+
+마지막 줄의 Docker Desktop 도 `esbuild` 를 쓸 거라면 빼도 됩니다. 설치가 끝나면 Git Bash 를 새로 열어야 PATH 가 반영됩니다.
+
+> [!NOTE]
+> Windows 절차는 Git Bash 기준이며, 이 가이드를 작성하며 Windows 에서 처음부터 끝까지 실행해 보지는 않았습니다.
+> 알려진 차이는 [3.1](docs/03-configure-source.md#31-관리-콘솔의-어드민-그룹-지정)의 `sed` 명령 하나이고, 해당 위치에
+> Git Bash 용 명령을 따로 적어 두었습니다. `chmod 600` 은 Windows 에서는 효과가 없으므로 `cdk.context.json` 은 파일 권한
+> 대신 보관 위치로 관리합니다.
+
 ### 계정과 권한
 
 | 대상 | 필요한 것 | 확인 위치 |

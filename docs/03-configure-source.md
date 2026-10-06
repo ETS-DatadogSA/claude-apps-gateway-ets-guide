@@ -2,7 +2,7 @@
 
 원본 리포는 Okta 기준으로 짜여 있어 설정값 세 곳이 Entra 와 맞지 않습니다. 이 리포는 그중 두 곳을 이미 Entra
 값으로 바꿔 두었고, 테넌트마다 다른 어드민 그룹 GUID 한 곳만 배포 전에 채우면 됩니다. 리포 루트에서
-실행합니다(macOS `sed` 기준).
+실행합니다(macOS `sed` 기준, Windows Git Bash 는 3.1 의 NOTE 참고).
 
 ![그룹 GUID 가 관리자 판정까지 가는 길](images/03-configure-source.drawio.png)
 
@@ -22,6 +22,13 @@ Anthropic 공식 문서는 Entra 로 갈 때 `userinfo_fallback` 과 `groups` �
 ```bash
 sed -i '' "s/<ENTRA_ADMIN_GROUP_OBJECT_ID>/$GRP/" admin-console/app/auth.py && grep -n "^ADMIN_GROUP_NAME" admin-console/app/auth.py
 ```
+
+> [!NOTE]
+> 위 명령은 macOS(BSD `sed`) 용입니다. Windows Git Bash 나 Linux 의 GNU `sed` 는 `-i` 뒤에 `''` 를 붙이지 않습니다.
+>
+> ```bash
+> sed -i "s/<ENTRA_ADMIN_GROUP_OBJECT_ID>/$GRP/" admin-console/app/auth.py && grep -n "^ADMIN_GROUP_NAME" admin-console/app/auth.py
+> ```
 
 이 값은 CDK 컨텍스트로 넘기는 `adminOktaGroupName` 과 별개입니다. 컨텍스트 값은 게이트웨이 컨테이너의 환경변수로만
 전달되고 관리 콘솔 컨테이너에는 주입되지 않습니다. 그래서 콘솔 쪽은 소스에서 직접 맞춰야 합니다. Okta 에서도 기본값과
