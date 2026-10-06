@@ -205,7 +205,7 @@ WARNING: The output includes credentials that you must protect. Be sure that you
 secret 생성됨 (길이 40)
 ```
 
-`WARNING` 은 az 가 secret 을 만들 때마다 띄우는 고정 안내이며 오류가 아닙니다. 마지막 줄에 길이가 나오면 성공입니다. \
+`WARNING` 은 azure-cli가 secret 을 만들 때마다 띄우는 고정 안내이며 오류가 아닙니다. 마지막 줄에 길이가 나오면 성공입니다. \
 secret 은 이 셸의 `$SECRET` 에만 있으므로 4.3 에서 저장할 때까지 셸을 닫지 않습니다.
 
 ### 포털에서 확인하는 방법
@@ -214,17 +214,34 @@ secret 은 이 셸의 `$SECRET` 에만 있으므로 4.3 에서 저장할 때까�
 
 ![인증서 및 암호의 클라이언트 비밀](images/01-client-secret.png)
 
-## 1.5 어드민 그룹 생성
+## 1.5 Admin Group 생성
 
-1.3 에서 설명한 관리자 판별의 기준이 되는 어드민 그룹을 만들고, 현재 계정을 추가합니다.
+1.3 에서 설명한 관리자 판별의 기준이 되는 Admin Group을 만들고, 현재 계정을 추가합니다.
 
 > [!TIP]
 > 이 그룹의 GUID(`GRP`)를 3·4단계 설정에 넣습니다. 이 그룹에 든 사용자만 관리 콘솔에서 관리자가 됩니다.
 
-**Admin Group 생성 명령어**
+### Admin Group 생성 명령어
 ```bash
 GRP=$(az ad group create --display-name "claude-gateway-admins" --mail-nickname "claude-gateway-admins" --query id -o tsv) && az ad group member add --group "$GRP" --member-id "$(az ad signed-in-user show --query id -o tsv)" && echo "GRP=$GRP"
 ```
+
+### Admin Group 생성 결과 예시
+```text
+GRP=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
+
+`GRP=` 뒤에 GUID 가 나오면 성공입니다.
+
+> [!WARNING]
+> 같은 이름의 그룹이 이미 있으면 새로 만들지 않고 **기존 그룹을 돌려줍니다.** 현재 계정이 이미 멤버라면 멤버 추가가 실패해 `GRP=` 줄이 출력되지 않습니다.
+>
+> ```text
+> WARNING: A group with the same display name and mail nickname already exists, returning.
+> One or more added object references already exist for the following modified properties: 'members'.
+> ```
+>
+> 이때도 `$GRP` 에는 기존 그룹 GUID 가 들어 있습니다. 기존 그룹을 그대로 쓸지, **그룹 → 모든 그룹**에서 그룹을 선택해 **삭제**하고 다시 실행할지 정합니다. 그룹 안의 **멤버** 화면에서 지우면 멤버만 빠지고 그룹은 남습니다.
 
 <details>
 <summary>다른 관리자 추가</summary>
