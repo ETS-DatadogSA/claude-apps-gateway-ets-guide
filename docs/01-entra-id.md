@@ -16,6 +16,28 @@
 
 ```bash
 az login
+```
+
+1. 브라우저에 Microsoft **계정 선택** 화면이 열립니다. 앱 등록 권한이 있는 계정을 고릅니다. \
+   브라우저가 열리지 않으면 `az login --use-device-code` 로 다시 실행합니다.
+
+   ![az login 계정 선택 화면](images/01-az-login-account.png)
+
+2. 터미널로 돌아오면 구독·테넌트 선택 표가 나옵니다. 앱을 등록할 테넌트의 번호를 입력합니다.
+
+```text
+No     Subscription name     Subscription ID                       Tenant
+-----  --------------------  ------------------------------------  --------
+[1] *  Azure subscription 1  xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  기본 디렉터리
+
+Select a subscription and tenant (Type a number or Enter for no changes): 1
+```
+
+개인 계정으로 Azure 에 가입하면 `기본 디렉터리` 테넌트가 자동으로 생기고, 가입한 계정이 그 테넌트의 관리자가 됩니다. 구독이 없는 테넌트에는 `az login --allow-no-subscriptions` 로 로그인합니다.
+
+선택한 테넌트와 계정을 확인합니다.
+
+```bash
 az account show --query "{tenant:tenantId, user:user.name}" -o table
 ```
 
@@ -28,6 +50,17 @@ APP=$(az ad app create --display-name "Claude Apps Gateway" --sign-in-audience A
 OBJ=$(az ad app show --id "$APP" --query id -o tsv) && echo "OBJ=$OBJ"
 az ad sp create --id "$APP"
 ```
+
+마지막 명령은 서비스 주체를 JSON 으로 출력합니다. `appId` 가 `APP` 과 같고 `replyUrls` 가 임시값이면 됩니다.
+
+포털 **Microsoft Entra ID → 관리 → 앱 등록 → 모든 애플리케이션**에도 앱이 보입니다. \
+같은 이름의 앱이 이미 있으면 `--display-name` 을 바꿔 구분합니다(아래 화면은 `Claude Apps Gateway Sample` 로 만든 경우).
+
+![앱 등록 목록](images/01-app-registrations.png)
+
+앱을 열면 **개요**에서 지원되는 계정 유형이 `내 조직만`, 리디렉션 URI 가 `1 웹` 으로 나옵니다.
+
+![앱 개요](images/01-app-overview.png)
 
 ## 1.3 groups 클레임 활성화
 
