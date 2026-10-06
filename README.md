@@ -31,7 +31,7 @@
 
 ## Requirement
 
-### 로컬 도구
+### 필요한 도구
 | 도구 | 버전 | 어디에 쓰나 | 확인 명령 |
 | --- | --- | --- | --- |
 | Node.js | 20 이상 | CDK 실행 (`npx cdk`) | `node --version` |
@@ -39,11 +39,11 @@
 | Azure CLI (`az`) | - | Entra 앱·그룹 생성 ([1단계](docs/01-entra-id.md)) | `az version` |
 | `jq` | - | VPN 프로필 추출, 컨텍스트 파일 저장·복원 | `jq --version` |
 | Docker 또는 `esbuild` | `esbuild` 는 `^0.21` | Lambda 번들링 ([2.2](docs/02-aws-preparation.md#22-의존성과-번들러)) | `docker info` 또는 `cdk/` 에서 `npx esbuild --version` |
-| AWS VPN Client | - | 프라이빗 게이트웨이 접속 ([5단계](docs/05-vpn-and-redirect.md)) | - |
+| OpenVPN 클라이언트 | - | 프라이빗 게이트웨이 접속 ([5단계](docs/05-vpn-and-redirect.md)). [OpenVPN Connect 다운로드](https://openvpn.net/client/) | - |
 
-AWS CDK CLI 는 따로 설치하지 않아도 됩니다. `cdk/package.json` 에 들어 있어 `npm install` 뒤 `npx cdk` 로 실행합니다.
+AWS CDK CLI 는 따로 설치하지 않아도 됩니다. `cdk/package.json`에 들어 있어 `npm install` 뒤 `npx cdk` 로 실행합니다.
 
-### 설치
+### 설치 방법
 
 #### macOS
 > [!NOTE]
@@ -93,7 +93,7 @@ winget install --id Docker.DockerDesktop -e
 | Microsoft Entra ID | 앱 등록과 그룹 생성이 가능한 계정 | [1.1](docs/01-entra-id.md#11-로그인) |
 
 > [!TIP]
-> 로컬 도구는 한 번에 확인할 수 있습니다. 하나라도 없으면 그 자리에서 멈춥니다.
+> 필요한 도구는 한 번에 확인할 수 있습니다. 하나라도 없으면 그 자리에서 멈춥니다.
 >
 > ```bash
 > node --version && aws --version && az version --output table && jq --version
