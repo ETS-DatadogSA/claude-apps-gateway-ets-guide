@@ -32,11 +32,12 @@ npx cdk destroy --all -c oidcIssuer="$ISSUER" -c oidcClientId="$APP" -c oidcClie
 aws cloudformation list-stacks --region us-east-1 --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE DELETE_FAILED --query "StackSummaries[?starts_with(StackName,'ClaudeGateway')].{Name:StackName,Status:StackStatus}"
 ```
 
-`cdk destroy` 가 지우지 않는 것은 다음과 같습니다.
+BuildMachine 스택이 만든 ECR 리포 2개는 `emptyOnDelete` 로 이미지째 함께 지워집니다. 업스트림 정리 문서의 ECR 안내는
+이 리포의 현재 소스와 맞지 않습니다. `cdk destroy` 가 지우지 않는 것은 다음과 같습니다.
 
 | 항목 | 이유 | 조치 |
 | --- | --- | --- |
-| CDK bootstrap ECR 리포(`cdk-hnb659fds-container-assets-<account>-us-east-1`)의 이미지 | 같은 계정·리전의 다른 CDK 앱과 공유 | 필요하면 이미지 태그를 직접 삭제하거나 수명 주기 정책 적용 |
+| CDK bootstrap 자산 버킷(`cdk-hnb659fds-assets-<account>-us-east-1`)에 올라간 `gateway/`·`admin-console/` 소스 zip | 같은 계정·리전의 다른 CDK 앱과 공유 | 필요하면 해당 객체를 직접 삭제 |
 | `CDKToolkit` 스택 | bootstrap 결과물로 다른 CDK 앱도 사용 | 그대로 둠 |
 | Entra 앱과 어드민 그룹 | AWS 밖의 리소스 | 7.3 |
 

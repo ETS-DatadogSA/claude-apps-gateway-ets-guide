@@ -28,29 +28,11 @@ Claude apps gateway, 관리 콘솔, 접속용 AWS Client VPN 입니다.
 명령은 운영자 PC 의 이 리포 clone 에서 실행하고, 실제 리소스는 배포 계정의 us-east-1 에 CloudFormation 스택
 7개로 올라갑니다. 컨테이너 이미지는 PC 가 아니라 AWS 안의 임시 EC2 가 빌드합니다.
 
-```mermaid
-flowchart TB
-  subgraph PC["운영자 PC"]
-    direction LR
-    clone["이 리포 clone (main)"] --> cfg["어드민 그룹 GUID 반영"] --> deploy["npx cdk deploy --all"]
-  end
-  subgraph ENTRA["Entra ID 테넌트"]
-    direction LR
-    app["앱 등록 · client secret"]
-    grp["어드민 그룹 (object ID)"]
-  end
-  subgraph AWS["AWS 계정 · us-east-1"]
-    cfn["CloudFormation 스택 7개"] --> bm["BuildMachine EC2 (임시)"]
-    bm -->|이미지 푸시| ecr["ECR"]
-    ecr --> gw["게이트웨이 (프라이빗)"]
-    ecr --> console["관리 콘솔 (퍼블릭)"]
-    vpn["Client VPN"] --> gw
-    gw --> db["Aurora Serverless v2"]
-  end
-  PC -->|az CLI| ENTRA
-  deploy -->|템플릿 + S3 asset| cfn
-  gw -.->|OIDC 로그인| app
-```
+![Claude Apps Gateway on AWS — Entra ID 배포 구성](docs/architecture.drawio.png)
+
+다이어그램 원본은 [docs/architecture.drawio](docs/architecture.drawio) 이고, PNG 에도 draw.io XML 이 들어 있어 draw.io 에서
+바로 열어 고칠 수 있습니다. 구성 요소와 흐름 설명은 [docs/architecture.md](docs/architecture.md) 에 있습니다. 관리자도 사인인
+과정에서 게이트웨이를 거치므로 VPN 이 필요합니다.
 
 | 항목 | 값 |
 | --- | --- |
