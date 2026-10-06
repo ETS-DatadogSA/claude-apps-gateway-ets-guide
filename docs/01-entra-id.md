@@ -41,6 +41,12 @@ Select a subscription and tenant (Type a number or Enter for no changes): 1
 az account show --query "{tenant:tenantId, user:user.name}" -o table
 ```
 
+```text
+Tenant                                User
+------------------------------------  ---------------------
+xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  user@example.com
+```
+
 ## 1.2 앱 등록
 
 게이트웨이는 client secret 을 쓰는 confidential client 입니다. 리다이렉트 URI 는 배포 후에 정해지므로 임시값으로 두고 [5.2](05-vpn-and-redirect.md#52-entra-리다이렉트-uri-교체)에서 바꿉니다.
@@ -51,7 +57,31 @@ OBJ=$(az ad app show --id "$APP" --query id -o tsv) && echo "OBJ=$OBJ"
 az ad sp create --id "$APP"
 ```
 
-마지막 명령은 서비스 주체를 JSON 으로 출력합니다. `appId` 가 `APP` 과 같고 `replyUrls` 가 임시값이면 됩니다.
+마지막 명령은 서비스 주체를 JSON 으로 출력합니다. `appId` 가 `APP` 과 같고 `replyUrls` 가 임시값이면 됩니다. 실행 결과(값은 가리고 JSON 은 일부만):
+
+```text
+APP=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+OBJ=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#servicePrincipals/$entity",
+  "accountEnabled": true,
+  "appDisplayName": "Claude Apps Gateway",
+  "appId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "appOwnerOrganizationId": "<tenant-id>",
+  ...
+  "id": "<service-principal-id>",
+  ...
+  "replyUrls": [
+    "https://placeholder.invalid/oauth/callback"
+  ],
+  ...
+  "servicePrincipalType": "Application",
+  "signInAudience": "AzureADMyOrg",
+  ...
+}
+```
+
+`OBJ`(앱 object ID)와 서비스 주체의 `id` 는 서로 다른 값입니다. 1.3 에는 `OBJ` 를 씁니다.
 
 포털 **Microsoft Entra ID → 관리 → 앱 등록 → 모든 애플리케이션**에도 앱이 보입니다. \
 같은 이름의 앱이 이미 있으면 `--display-name` 을 바꿔 구분합니다(아래 화면은 `Claude Apps Gateway Sample` 로 만든 경우).
