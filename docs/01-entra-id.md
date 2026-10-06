@@ -123,6 +123,11 @@ az rest --method PATCH --url "https://graph.microsoft.com/v1.0/applications/$OBJ
 
 성공하면 아무것도 출력하지 않습니다.
 
+**포털에서 확인** \
+**앱 등록 → (앱) → 관리 → 토큰 구성**의 선택적 클레임 목록에 `groups` 가 보입니다. 명령 실행 전에 열어 둔 화면이면 새로 고침해야 나타납니다.
+
+![토큰 구성의 groups 클레임](images/01-token-configuration.png)
+
 > [!IMPORTANT]
 > 토큰에 들어가는 값은 그룹 이름(`claude-gateway-admins`)이 아니라 그룹의 **object ID(GUID)** 입니다. \
 > 그래서 1.5 에서 그룹 이름이 아니라 GUID 를 `GRP` 로 받아 두고, 3·4단계 설정에도 GUID 를 넣습니다.
