@@ -1,4 +1,4 @@
-# Claude Apps Gateway on AWS — Entra ID 배포 가이드
+# Claude Apps Gateway on AWS - Entra ID 기반 배포 가이드
 
 [aws-samples/sample-claude-apps-gateway-on-aws](https://github.com/aws-samples/sample-claude-apps-gateway-on-aws)를 **Microsoft Entra ID**를 IdP 로, **us-east-1** 리전에 배포하는 절차입니다. 결과물은 Amazon Bedrock 앞단의 Claude apps gateway, 관리 콘솔, 접속용 AWS Client VPN 입니다.
 
@@ -24,8 +24,10 @@
 | 9 | [업데이트와 삭제](docs/09-update-and-cleanup.md) | 재배포, `cdk destroy`, Entra 정리 |
 | 10 | [문제 해결](docs/10-troubleshooting.md) | 증상별 원인과 조치 |
 
-모든 단계는 같은 셸에서 이어서 진행하는 것을 전제로 합니다. 앞 단계의 셸 변수(`APP`, `SECRET`, `GRP`,
-`ISSUER`)를 뒤에서 씁니다. 셸을 새로 열었다면 [4. CDK 배포](docs/04-deploy.md#45-새-셸에서-변수-복원)의 복원 방법을 따릅니다.
+> [!NOTE]
+> 1. 모든 단계는 같은 Shell에서 이어서 진행하는 것을 전제로 합니다.
+> 2. 앞 단계에서의 셸 변수 (`APP`, `SECRET`, `GRP`, `ISSUER`)를 차후 챕터에서도 활용합니다.
+> 3. 신규 Shell을 열었을 경우 [4. CDK 배포](docs/04-deploy.md#45-새-셸에서-변수-복원)의 복원 방법을 따릅니다.
 
 ## 어디서 배포하나
 
