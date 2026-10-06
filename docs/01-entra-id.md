@@ -103,8 +103,9 @@ OBJ=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy
 
 로그인 토큰에 사용자가 속한 그룹 목록(`groups` 클레임)을 넣도록 앱 설정을 바꿉니다.
 
-**왜 하나요?** Claude Apps Gateway와 관리 콘솔은 토큰의 그룹 목록으로 관리자를 판단하는데, Entra ID 는 기본값으로 그룹을 토큰에 넣지 않습니다. \
-건너뛰면 어드민 그룹에 넣은 사용자도 관리자로 인식되지 않습니다.
+> [!TIP]
+> **왜 하나요?** Claude Apps Gateway와 관리 콘솔은 토큰의 그룹 목록으로 관리자를 판단하는데, Entra ID 는 기본값으로 그룹을 토큰에 넣지 않습니다. \
+> 건너뛰면 어드민 그룹에 넣은 사용자도 관리자로 인식되지 않습니다.
 
 <details>
 <summary>자세히: 관리자 판별 방식</summary>
@@ -166,7 +167,8 @@ az rest --method PATCH --url "https://graph.microsoft.com/v1.0/applications/$OBJ
 
 게이트웨이용 client secret 을 만듭니다. secret 은 이때 한 번만 나옵니다. [4.3](04-deploy.md#43-컨텍스트-파일로-저장-선택)에서 파일로 저장합니다.
 
-**왜 하나요?** 게이트웨이는 로그인 처리 중 Entra 에 토큰을 요청할 때 이 앱이 맞다는 것을 secret 으로 증명합니다(confidential client). 4단계의 `-c oidcClientSecret` 으로 넘깁니다.
+> [!TIP]
+> **왜 하나요?** 게이트웨이는 로그인 처리 중 Entra 에 토큰을 요청할 때 이 앱이 맞다는 것을 secret 으로 증명합니다(confidential client). 4단계의 `-c oidcClientSecret` 으로 넘깁니다.
 
 > [!CAUTION]
 > `--append` 를 빼면 이 앱의 기존 자격증명이 전부 삭제됩니다.
@@ -182,7 +184,8 @@ secret 값은 화면에 출력하지 않고 길이만 보여 줍니다.
 
 관리 콘솔 관리자를 넣을 그룹을 만들고, 현재 계정을 추가합니다.
 
-**왜 하나요?** 1.3 에서 설명한 관리자 판별의 기준이 되는 그룹입니다. 이 그룹의 GUID(`GRP`)를 3·4단계 설정에 넣고, 이 그룹에 든 사용자만 관리 콘솔에서 관리자가 됩니다.
+> [!TIP]
+> **왜 하나요?** 1.3 에서 설명한 관리자 판별의 기준이 되는 그룹입니다. 이 그룹의 GUID(`GRP`)를 3·4단계 설정에 넣고, 이 그룹에 든 사용자만 관리 콘솔에서 관리자가 됩니다.
 
 **Admin Group 생성 명령어**
 ```bash
