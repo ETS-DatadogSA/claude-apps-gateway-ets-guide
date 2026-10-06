@@ -107,16 +107,28 @@ OBJ=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy
 
 ![앱 개요](images/01-app-overview.png)
 
-## 1.3 Group claim 활성화
+## 1.3 Group claim(groups) 활성화
 
-Claude Apps Gateway와 관리 콘솔은 로그인 토큰에 담긴 그룹 목록(`groups` 클레임)으로 관리자를 판단합니다. \
+Claude Apps Gateway와 관리 콘솔은 로그인 토큰에 담긴 그룹 목록(`groups` claim)으로 관리자를 판단합니다. \
 그런데 Entra ID 는 기본값으로 그룹을 토큰에 넣지 않으므로, 넣도록 앱 설정을 바꿉니다.
 
 > [!TIP]
-> 건너뛰면 어드민 그룹에 넣은 사용자도 관리자로 인식되지 않습니다.
+> 해당 과정을 건너 뛸 경우 Admin 그룹에 넣은 사용자도 관리자로 인식되지 않습니다.
+
+
+**Group claim 명령어**
+```bash
+az rest --method PATCH --url "https://graph.microsoft.com/v1.0/applications/$OBJ" --body "{\"groupMembershipClaims\": \"SecurityGroup\", \"optionalClaims\": {\"idToken\": [{\"name\": \"groups\", \"essential\": false}], \"accessToken\": [{\"name\": \"groups\", \"essential\": false}]}}"
+```
+
+성공하면 아무것도 출력하지 않습니다.
+
+> [!IMPORTANT]
+> 토큰에 들어가는 값은 그룹 이름(`claude-gateway-admins`)이 아니라 그룹의 **object ID(GUID)** 입니다. \
+> 그래서 1.5 에서 그룹 이름이 아니라 GUID 를 `GRP` 로 받아 두고, 3·4단계 설정에도 GUID 를 넣습니다.
 
 <details>
-<summary>자세히: 관리자 판별 방식</summary>
+<summary>Claude Apps Gateway의 관리자 판별 방식 (자세히 보기)</summary>
 
 로그인하면 Entra 가 발급하는 토큰(JWT) 안에 사용자 정보가 JSON 으로 들어 있습니다. \
 해당 단계를 적용하면 여기에 `groups` 항목이 생기고, 사용자가 속한 보안 그룹의 GUID 가 나열됩니다. \
@@ -148,26 +160,19 @@ Entra ID는 기본값으로 토큰에 그룹을 넣지 않습니다. 토큰에 `
 
 </details>
 
-**Group claim 명령어**
-```bash
-az rest --method PATCH --url "https://graph.microsoft.com/v1.0/applications/$OBJ" --body "{\"groupMembershipClaims\": \"SecurityGroup\", \"optionalClaims\": {\"idToken\": [{\"name\": \"groups\", \"essential\": false}], \"accessToken\": [{\"name\": \"groups\", \"essential\": false}]}}"
-```
-
-성공하면 아무것도 출력하지 않습니다.
-
-> [!IMPORTANT]
-> 토큰에 들어가는 값은 그룹 이름(`claude-gateway-admins`)이 아니라 그룹의 **object ID(GUID)** 입니다. \
-> 그래서 1.5 에서 그룹 이름이 아니라 GUID 를 `GRP` 로 받아 두고, 3·4단계 설정에도 GUID 를 넣습니다.
-
 <details>
-<summary>명령이 바꾸는 설정</summary>
+<summary>명령으로 바뀌는 앱 설정</summary>
 
-| 설정 | 의미 |
-| --- | --- |
-| `groupMembershipClaims: "SecurityGroup"` | 사용자가 속한 보안 그룹을 토큰에 넣음 |
-| `optionalClaims` 의 `idToken`·`accessToken` 에 `groups` | ID 토큰과 액세스 토큰 모두에 넣음 |
+명령은 앱 매니페스트의 두 값을 바꿉니다. 포털 **앱 등록 → (앱) → 매니페스트**에서 확인할 수 있습니다.
 
-포털에서 **앱 등록 → (앱) → 토큰 구성 → 그룹 클레임 추가 → 보안 그룹**을 선택하는 것과 같습니다.
+| 설정 | 넣는 값 | 하는 일 |
+| --- | --- | --- |
+| `groupMembershipClaims` | `"SecurityGroup"` | 사용자가 속한 보안 그룹의 object ID 를 `groups` 클레임으로 토큰에 넣습니다. **그룹이 토큰에 들어가게 하는 것은 이 값입니다.** |
+| `optionalClaims` 의 `idToken`·`accessToken` | `{"name": "groups"}` | 토큰 종류별 `groups` 클레임의 형식을 바꾸는 자리입니다. `additionalProperties` 를 비워 두었으므로 기본 형식(object ID) 그대로입니다. |
+
+포털에서 **앱 등록 → (앱) → 토큰 구성 → 그룹 클레임 추가 → 보안 그룹**을 선택해도 같은 설정이 됩니다.
+
+근거: Microsoft Learn [Configure optional claims](https://learn.microsoft.com/en-us/entra/identity-platform/optional-claims#configure-groups-optional-claims), [Configure group claims for applications](https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/how-to-connect-fed-group-claims)
 
 </details>
 
