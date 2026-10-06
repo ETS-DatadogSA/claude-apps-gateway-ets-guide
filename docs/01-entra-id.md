@@ -256,6 +256,13 @@ GRP=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 > ```
 >
 > 두 경우 모두 기존 그룹을 그대로 쓸지, **그룹 → 모든 그룹**에서 그룹을 선택해 **삭제**하고 다시 실행할지 정합니다. 그룹 안의 **구성원** 화면에서 지우면 구성원만 빠지고 그룹은 남습니다.
+>
+> 그룹을 삭제한 직후에 다시 실행하면, 삭제가 반영되기 전이라 지워진 그룹 ID 를 돌려받고 구성원 추가에서 실패할 수 있습니다. 잠시 기다렸다가 다시 실행합니다.
+>
+> ```text
+> WARNING: A group with the same display name and mail nickname already exists, returning.
+> Resource 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' does not exist or one of its queried reference-property objects are not present.
+> ```
 
 <details>
 <summary>다른 관리자 추가</summary>
