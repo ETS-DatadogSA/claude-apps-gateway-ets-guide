@@ -47,5 +47,5 @@
 draw.io 에서 `architecture.drawio` 를 고친 뒤 PNG 를 다시 찍습니다(macOS).
 
 ```bash
-/Applications/draw.io.app/Contents/MacOS/draw.io -x -f png -e -b 10 -o docs/architecture.drawio.png docs/architecture.drawio
+/Applications/draw.io.app/Contents/MacOS/draw.io -x -f png -e -b 20 -s 2 -o docs/architecture.drawio.png docs/architecture.drawio
 ```
