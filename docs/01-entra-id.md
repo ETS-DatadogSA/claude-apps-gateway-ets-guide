@@ -120,9 +120,9 @@ Claude Apps Gateway와 관리 콘솔은 로그인 토큰에 담긴 그룹 목록
 az rest --method PATCH --url "https://graph.microsoft.com/v1.0/applications/$OBJ" --body "{\"groupMembershipClaims\": \"SecurityGroup\", \"optionalClaims\": {\"idToken\": [{\"name\": \"groups\", \"essential\": false}], \"accessToken\": [{\"name\": \"groups\", \"essential\": false}]}}"
 ```
 
-성공하면 아무것도 출력하지 않습니다. \
+성공하면 아무것도 출력하지 않습니다.
 
-### **포털에서 확인하는 방법** \
+### **포털에서 확인하는 방법**
 **앱 등록 → (앱) → 관리 → 토큰 구성**의 선택적 클레임 목록에 `groups` 가 보입니다. \
 명령 실행 전에 열어 둔 화면이면 새로 고침해야 나타납니다.
 
@@ -183,8 +183,8 @@ Entra ID는 기본값으로 토큰에 그룹을 넣지 않습니다. 토큰에 `
 
 ## 1.4 client secret 생성
 
-게이트웨이는 로그인 처리 중 Entra 에 토큰을 요청할 때, 이 앱이 맞다는 것을 client secret 으로 증명합니다(confidential client). \
-그 secret 을 만들고, 4단계의 `-c oidcClientSecret` 으로 넘깁니다.
+Claude Apps Gateway는 로그인 처리 중 Entra ID 에 토큰을 요청할 때 client secret 으로 자신을 인증합니다(confidential client). \
+이 단계에서 secret 을 만들고, 4단계의 `-c oidcClientSecret` 으로 넘깁니다.
 
 > [!TIP]
 > secret 은 이때 한 번만 나옵니다. [4.3](04-deploy.md#43-컨텍스트-파일로-저장-선택)에서 파일로 저장합니다.
