@@ -2,11 +2,12 @@
 
 ## 7.1 업데이트
 
-업스트림 변경을 반영할 때는 같은 트리에서 받아 오고, [3단계](03-configure-source.md)의 세 값이 유지됐는지 확인한
-뒤 재배포합니다. 업스트림이 같은 줄을 고쳤다면 충돌이 나므로 직접 맞춥니다.
+이 리포의 변경을 받아 와 재배포합니다. [3.1](03-configure-source.md#31-관리-콘솔의-어드민-그룹-지정)에서 넣은 GUID 는
+커밋하지 않은 로컬 수정이므로 `--autostash` 로 잠시 치워 두고 받은 뒤 되살립니다. 같은 줄이 바뀌었다면 충돌이 나므로
+직접 맞춥니다. 끝나면 [3.2](03-configure-source.md#32-확인)로 세 값을 다시 확인합니다.
 
 ```bash
-git pull && git status --short
+git pull --autostash && git status --short
 ```
 
 ```bash
@@ -17,7 +18,7 @@ cd cdk && npm install && npx cdk deploy --all -c oidcIssuer="$ISSUER" -c oidcCli
 
 ## 7.2 스택 삭제
 
-`destroy` 도 스택을 다시 합성하므로 컨텍스트가 필요합니다. 업스트림 `docs/05-cleanup.md` 의 예시에는
+`destroy` 도 스택을 다시 합성하므로 컨텍스트가 필요합니다. 업스트림 [05-cleanup.md](upstream/05-cleanup.md) 의 예시에는
 `oidcClientSecret` 이 빠져 있어 그대로 실행하면 실패합니다. 새 셸이라면
 [4.5](04-deploy.md#45-새-셸에서-변수-복원)로 변수를 먼저 복원합니다.
 

@@ -23,7 +23,10 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.config import settings
 
-ADMIN_GROUP_NAME = "claude-gateway-admins"
+# Entra ID emits group object IDs (GUIDs), not names, in the groups claim.
+# Replace with the admin group's object ID before deploying -- see
+# docs/03-configure-source.md.
+ADMIN_GROUP_NAME = "<ENTRA_ADMIN_GROUP_OBJECT_ID>"
 
 # Session dict key name, not a credential -- Bandit's B105 heuristic flags
 # any string literal assigned to a "*token*"-named variable regardless of

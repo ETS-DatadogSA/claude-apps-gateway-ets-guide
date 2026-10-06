@@ -45,7 +45,7 @@ npx cdk deploy --all -c oidcIssuer="$ISSUER" -c oidcClientId="$APP" -c oidcClien
 ## 4.3 컨텍스트 파일로 저장 (선택)
 
 매번 `-c` 네 개를 붙이지 않으려면 `cdk/cdk.context.json` 에 저장합니다. CDK 가 이 파일을 컨텍스트로 읽으므로
-이후 `bootstrap`·`deploy`·`destroy` 가 `-c` 없이 동작합니다. 업스트림 `.gitignore` 대상이지만 secret 이
+이후 `bootstrap`·`deploy`·`destroy` 가 `-c` 없이 동작합니다. `.gitignore` 대상이지만 secret 이
 평문이므로 권한을 좁힙니다.
 
 ```bash

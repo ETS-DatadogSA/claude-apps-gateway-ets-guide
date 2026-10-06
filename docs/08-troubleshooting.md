@@ -16,7 +16,7 @@
 
 ## 사인인은 되는데 not-authorized
 
-1. [3.4](03-configure-source.md#34-확인)의 `grep` 으로 `userinfo_fallback: false` 와 `ADMIN_GROUP_NAME` 이 실제로
+1. [3.2](03-configure-source.md#32-확인)의 `grep` 으로 `userinfo_fallback: false` 와 `ADMIN_GROUP_NAME` 이 실제로
    반영됐는지 확인합니다. fallback 이 켜져 있으면 id_token 의 groups 가 userinfo 응답에 덮여 사라질 수 있습니다.
 2. `ADMIN_GROUP_NAME` 의 GUID 가 `$GRP` 와 같은지 확인합니다.
 3. 로그인한 계정이 그룹에 있는지 확인합니다.
@@ -31,7 +31,7 @@ az ad group member check --group "$GRP" --member-id "$(az ad signed-in-user show
 
 ## Aurora 버전 없음
 
-업스트림 `cdk/lib/database-stack.ts` 의 `AuroraPostgresEngineVersion.VER_16_6` 을 리전과 CDK 양쪽에 있는 버전으로
+`cdk/lib/database-stack.ts` 의 `AuroraPostgresEngineVersion.VER_16_6` 을 리전과 CDK 양쪽에 있는 버전으로
 올립니다. 두 목록을 각각 조회합니다.
 
 ```bash

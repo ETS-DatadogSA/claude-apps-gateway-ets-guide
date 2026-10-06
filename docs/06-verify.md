@@ -1,7 +1,7 @@
 # 6. 배포 확인
 
 아래 다섯 항목이 모두 통과하면 인증, 비용 한도 관리, 모델 접근 관리, Bedrock 추론까지 확인된 것입니다. 모두 VPN 을
-연결한 상태에서 진행합니다. 세부 화면은 업스트림 `docs/03-verify.md` 와 `docs/04-admin-console-guide.md` 를
+연결한 상태에서 진행합니다. 세부 화면은 업스트림 문서 [03-verify.md](upstream/03-verify.md) 와 [04-admin-console-guide.md](upstream/04-admin-console-guide.md) 를
 참고합니다.
 
 | 확인 | 방법 | 기대 결과 |
