@@ -279,7 +279,7 @@ ISSUER=https://login.microsoftonline.com/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/v2
 
 ## 1.7 확인
 
-다섯 변수가 모두 채워졌는지 봅니다. secret 은 길이만 출력합니다.
+모든 변수가 정상적으로 채워졌는지 확인합니다. secret의 경우 길이만 출력합니다.
 
 ### 변수 확인 명령어
 ```bash
