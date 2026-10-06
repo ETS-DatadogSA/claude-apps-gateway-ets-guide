@@ -1,6 +1,6 @@
 # 1. Entra ID 앱 등록
 
-Claude Apps Gateway용 Entra ID App과 Admin을 만들고, cdk 배포에 사용할 환경변수를 확보합니다. \
+Claude Apps Gateway용 Entra ID 앱과 어드민 그룹을 만들고, cdk 배포에 사용할 값을 셸 변수로 확보합니다. \
 모든 명령은 Azure CLI(`az`)로 실행합니다.
 
 | 변수 | 내용 | 쓰이는 곳 |
@@ -27,6 +27,7 @@ az login
 
 2. 터미널로 돌아오면 구독·테넌트 선택 표가 나옵니다. 앱을 등록할 테넌트의 번호를 입력합니다.
 
+**테넌트 선택 화면 예시**
 ```text
 No     Subscription name     Subscription ID                       Tenant
 -----  --------------------  ------------------------------------  --------
@@ -34,9 +35,12 @@ No     Subscription name     Subscription ID                       Tenant
 
 Select a subscription and tenant (Type a number or Enter for no changes): 1
 ```
+
 > [!TIP]
 > 개인 계정으로 Azure 에 가입하면 `기본 디렉터리` 테넌트가 자동으로 생기고, 가입한 계정이 그 테넌트의 관리자가 됩니다. \
-> 구독이 없는 테넌트에는 `az login --allow-no-subscriptions` 로 로그인합니다. 선택한 테넌트와 계정을 확인합니다.
+> 구독이 없는 테넌트에는 `az login --allow-no-subscriptions` 로 로그인합니다.
+
+선택한 테넌트와 계정을 확인합니다.
 
 **테넌트 확인 명령어**
 ```bash
@@ -52,8 +56,11 @@ xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  user@example.com
 
 ## 1.2 앱 등록
 
-Gateway는 client secret 을 쓰는 confidential client 입니다. \
-Redirect URI 는 배포 후에 정해지므로 임시값으로 두고 [5.2](05-vpn-and-redirect.md#52-entra-리다이렉트-uri-교체)에서 바꿉니다.
+Claude Apps Gateway는 사용자 로그인을 Entra ID 에 맡기므로(OIDC), Entra ID 에 앱으로 등록돼 있어야 합니다. \
+client secret 을 쓰는 confidential client 로 앱을 등록하고, 서비스 주체를 만듭니다.
+
+> [!TIP]
+> Redirect URI 는 배포 후에 정해지므로 임시값으로 두고 [5.2](05-vpn-and-redirect.md#52-entra-리다이렉트-uri-교체)에서 바꿉니다.
 
 **앱 등록 명령어**
 ```bash
@@ -62,9 +69,9 @@ OBJ=$(az ad app show --id "$APP" --query id -o tsv) && echo "OBJ=$OBJ"
 az ad sp create --id "$APP"
 ```
 
-마지막 명령은 서비스 주체를 JSON 으로 출력합니다. `appId` 가 `APP` 과 같고 `replyUrls` 가 임시값이면 됩니다. \
-하단의 예시는 실행 결과 예시입니다:
+마지막 명령은 서비스 주체를 JSON 으로 출력합니다. `appId` 가 `APP` 과 같고 `replyUrls` 가 임시값이면 됩니다.
 
+**앱 등록 결과 예시** (값은 가리고 JSON 은 일부만)
 ```json
 APP=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 OBJ=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy
@@ -89,7 +96,8 @@ OBJ=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy
 
 `OBJ`(앱 object ID)와 서비스 주체의 `id` 는 서로 다른 값입니다. 1.3 에는 `OBJ` 를 씁니다.
 
-포털 **Microsoft Entra ID → 관리 → 앱 등록 → 모든 애플리케이션**에도 앱이 보입니다. \
+**포털에서 확인** \
+**Microsoft Entra ID → 관리 → 앱 등록 → 모든 애플리케이션**에 앱이 보입니다. \
 같은 이름의 앱이 이미 있으면 `--display-name` 인자의 파라미터를 변경하여 구분합니다. \
 (하단의 예시 이미지는 `Claude Apps Gateway Sample` 로 생성 하였습니다) 
 
@@ -204,7 +212,8 @@ az ad group member add --group "$GRP" --member-id "$(az ad user show --id <user@
 
 ## 1.6 issuer 확인
 
-게이트웨이가 토큰 발급자로 신뢰할 Entra v2 issuer 주소를 만듭니다.
+Claude Apps Gateway는 토큰을 발급한 곳(issuer)이 설정된 주소와 같을 때만 토큰을 믿습니다. \
+테넌트 ID 로 Entra ID v2 issuer 주소를 만듭니다.
 
 **Issuer 확인 명령어**
 ```bash
