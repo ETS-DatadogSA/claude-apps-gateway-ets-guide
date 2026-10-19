@@ -72,7 +72,7 @@ https://cl-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy.ecs.us-east-1.on.aws/signin
 | --- | --- |
 | Scope | `Organization`(조직 전체), `IdP group`(Entra 그룹), `Individual developer (OIDC sub)`(개인) |
 | Cap amount (USD) | 한도 금액. 센트 단위 정수로 저장되며 `0` 이면 모든 요청을 막음 |
-| Period | `Daily`·`Monthly` 등 한도를 다시 채우는 주기 |
+| Period | `Daily`·`Weekly`·`Monthly` 중 한도를 다시 채우는 주기 |
 
 확인 순서:
 1. 테스트 한도를 하나 만듭니다(예: Organization, Monthly, `500`).
