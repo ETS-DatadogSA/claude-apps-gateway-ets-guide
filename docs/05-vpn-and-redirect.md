@@ -109,6 +109,11 @@ https://cl-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.ecs.us-east-1.on.aws/oauth/callback
 
 임시값 `https://placeholder.invalid/oauth/callback` 이 사라지고 위 주소 하나만 나오면 됩니다.
 
+### 포털에서 확인하는 방법
+**앱 등록 → (앱) → 관리 → Authentication (Preview) → 리디렉션 URI 구성** 탭의 **웹** 플랫폼 아래에 `https://cl-….ecs.us-east-1.on.aws/oauth/callback` 하나가 보입니다. 포털 버전에 따라 메뉴 이름이 **인증**으로 나올 수 있고, 앱 **개요**의 **리디렉션 URI** 링크로도 같은 화면에 갑니다.
+
+![Authentication 의 리디렉션 URI](images/05-redirect-uri.png)
+
 ## 5.3 헬스체크
 
 VPN 을 거쳐 게이트웨이에 닿는지 확인합니다. VPN 이 연결된 상태에서 실행합니다.
