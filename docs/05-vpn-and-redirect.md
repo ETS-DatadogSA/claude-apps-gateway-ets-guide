@@ -6,11 +6,28 @@
 
 ## 5.1 VPN 연결
 
-VPN 프로필을 Secrets Manager 에서 받습니다.
+게이트웨이는 프라이빗 서브넷에 있어 VPN 으로만 닿습니다. 4장에서 만든 Client VPN 의 접속 프로필(`.ovpn`)을 Secrets Manager 에서 받아 OpenVPN 클라이언트로 연결합니다.
+
+### VPN 프로필 받기 명령어
+뒤의 `ls`·`grep` 은 확인용입니다. 인증서와 키는 화면에 출력하지 않습니다.
 
 ```bash
-aws secretsmanager get-secret-value --secret-id "$(aws cloudformation describe-stacks --stack-name ClaudeGatewayVpnStack --query "Stacks[0].Outputs[?OutputKey=='VpnClientProfileSecretArn'].OutputValue" --output text)" --query SecretString --output text | jq -r .ovpnProfile > claude-gateway-vpn-client.ovpn
+aws secretsmanager get-secret-value --secret-id "$(aws cloudformation describe-stacks --stack-name ClaudeGatewayVpnStack --query "Stacks[0].Outputs[?OutputKey=='VpnClientProfileSecretArn'].OutputValue" --output text)" --query SecretString --output text | jq -r .ovpnProfile > claude-gateway-vpn-client.ovpn && chmod 600 claude-gateway-vpn-client.ovpn && ls -l claude-gateway-vpn-client.ovpn && grep -E "^(client|dev|proto|remote|split-tunnel)" claude-gateway-vpn-client.ovpn && grep -c "BEGIN" claude-gateway-vpn-client.ovpn
 ```
+
+### VPN 프로필 받기 결과 예시
+```text
+-rw-------@ 1 user  staff  4102 Oct 19 15:47 claude-gateway-vpn-client.ovpn
+client
+dev tun
+proto udp
+remote cvpn-endpoint-xxxxxxxxxxxxxxxxx.prod.clientvpn.us-east-1.amazonaws.com 443
+remote-random-hostname
+remote-cert-tls server
+3
+```
+
+`remote` 의 엔드포인트 ID 가 4장 Vpn 스택 출력의 `ClientVpnEndpointId` 와 같고, 마지막 숫자(인증서·키 블록 수)가 `3` 이면 됩니다.
 
 1. [OpenVPN Connect](https://openvpn.net/client/) 를 설치합니다.
 2. 프로필 가져오기(Import Profile)로 `claude-gateway-vpn-client.ovpn` 을 불러옵니다.
