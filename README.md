@@ -77,7 +77,7 @@ winget install --id Docker.DockerDesktop -e
 
 | 대상 | 필요한 것 | 확인 위치 |
 | --- | --- | --- |
-| AWS | IAM 롤 생성 권한 (스택 10개, `cdk bootstrap` 5개) | [2.3](docs/02-aws-preparation.md#23-리전과-자격증명-고정) |
+| AWS | IAM 롤 생성 권한 (스택 10개, `cdk bootstrap` 5개) | [2.3](docs/02-aws-preparation.md#23-aws-region과-배포-자격증명-고정) |
 | Amazon Bedrock | Anthropic 모델 [모델 액세스](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html), `us.anthropic.*` 추론 프로파일 | [2.4](docs/02-aws-preparation.md#24-bedrock-추론-프로파일-확인) |
 | Microsoft Entra ID | 앱 등록·그룹 생성 권한 | [1.1](docs/01-entra-id.md#11-로그인) |
 

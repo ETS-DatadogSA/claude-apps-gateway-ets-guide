@@ -86,6 +86,6 @@ aws cloudformation describe-stacks --stack-name ClaudeGatewayAdminConsoleStack -
 eval "$(jq -r '"export ISSUER=\(.oidcIssuer|@sh) APP=\(.oidcClientId|@sh) SECRET=\(.oidcClientSecret|@sh) GRP=\(.adminOktaGroupName|@sh)"' cdk.context.json)" && echo "APP=$APP GRP=$GRP ISSUER=$ISSUER SECRET_LEN=${#SECRET}"
 ```
 
-리전·자격증명 환경변수([2.3](02-aws-preparation.md#23-리전과-자격증명-고정))도 다시 설정합니다. 파일이 없으면 secret 을 다시 조회할 방법이 없으므로 [1.4](01-entra-id.md#14-client-secret-생성)로 새로 만듭니다.
+리전·자격증명 환경변수([2.3](02-aws-preparation.md#23-aws-region과-배포-자격증명-고정))도 다시 설정합니다. 파일이 없으면 secret 을 다시 조회할 방법이 없으므로 [1.4](01-entra-id.md#14-client-secret-생성)로 새로 만듭니다.
 
 다음: [5. VPN 연결과 리다이렉트 URI](05-vpn-and-redirect.md)

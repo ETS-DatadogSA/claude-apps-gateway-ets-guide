@@ -5,7 +5,7 @@
 | 위치 | 원본 값 | 이 리포 값 | 이유 |
 | --- | --- | --- | --- |
 | `gateway/gateway.yaml` `oidc.userinfo_fallback` | `true` | `false` (반영됨) | Entra 의 userinfo 는 groups 를 주지 않음 |
-| `gateway/gateway.yaml` `oidc.scopes` | `groups` 포함 | `groups` 제거 (반영됨) | Entra 에는 `groups` 스코프가 없음 ([1.3](01-entra-id.md#13-groups-클레임-활성화)) |
+| `gateway/gateway.yaml` `oidc.scopes` | `groups` 포함 | `groups` 제거 (반영됨) | Entra 에는 `groups` 스코프가 없음 ([1.3](01-entra-id.md#13-group-claimgroups-활성화)) |
 | `admin-console/app/auth.py` `ADMIN_GROUP_NAME` | `"claude-gateway-admins"` | 자리표시자 → **`$GRP` 로 교체** | Entra 는 그룹명이 아니라 GUID 를 보냄 |
 
 <details>
@@ -16,7 +16,7 @@ Anthropic 공식 문서는 Entra 로 갈 때 `userinfo_fallback` 과 `groups` �
 
 ## 3.1 관리 콘솔의 어드민 그룹 지정
 
-[1.5](01-entra-id.md#15-어드민-그룹-생성)의 그룹 GUID 를 넣습니다.
+[1.5](01-entra-id.md#15-admin-group-생성)의 그룹 GUID 를 넣습니다.
 
 macOS:
 

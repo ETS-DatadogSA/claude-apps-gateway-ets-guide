@@ -24,7 +24,7 @@ curl -s "$GWEP/healthz"
 
 1. 브라우저로 `<AdminConsoleEndpoint>/signin` 을 엽니다.
 2. device 인증 흐름을 따라 Entra 로그인 페이지로 넘어갑니다.
-3. [어드민 그룹](01-entra-id.md#15-어드민-그룹-생성)에 속한 계정으로 로그인합니다.
+3. [어드민 그룹](01-entra-id.md#15-admin-group-생성)에 속한 계정으로 로그인합니다.
 4. `/spend/dashboard` 에 도착하면 성공입니다.
 
 `/not-authorized` 로 가면 → [10장](10-troubleshooting.md#사인인은-되는데-not-authorized)
