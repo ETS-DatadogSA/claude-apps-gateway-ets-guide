@@ -107,6 +107,29 @@ ntimeEndpoint
 net1/NATGateway
 ```
 
+이후 스택에서도 IAM 이나 보안 그룹이 바뀌면 같은 질문이 나옵니다. 아래는 3번째 `ClaudeGatewayDatabaseStack` 의 IAM 정책 변경 표입니다(일부 생략). 이번에도 `y` 를 입력합니다.
+
+```text
+┌───┬─────────────────────┬────────┬─────────────────────┬─────────────────────┬───────────┐
+│   │ Resource            │ Effect │ Action              │ Principal           │ Condition │
+├───┼─────────────────────┼────────┼─────────────────────┼─────────────────────┼───────────┤
+│ + │ ${GatewayDatabase/S │ Allow  │ secretsmanager:Desc │ AWS:${PostgresUrlCo │           │
+│   │ ecret/Attachment}   │        │ ribeSecret          │ mbinerFunction/Serv │           │
+...
+└───┴─────────────────────┴────────┴─────────────────────┴─────────────────────┴───────────┘
+IAM Policy Changes
+┌───┬──────────────────────────────────────────┬───────────────────────────────────────────┐
+│   │ Resource                                 │ Managed Policy ARN                        │
+├───┼──────────────────────────────────────────┼───────────────────────────────────────────┤
+│ + │ ${PostgresUrlCombinerFunction/ServiceRol │ arn:${AWS::Partition}:iam::aws:policy/ser │
+│   │ e}                                       │ vice-role/AWSLambdaBasicExecutionRole     │
+...
+└───┴──────────────────────────────────────────┴───────────────────────────────────────────┘
+
+"--require-approval" is enabled and stack includes security-sensitive updates: Do you wish to deploy these changes? (y/n) y
+ClaudeGatewayDatabaseStack: deploying... [3/7]
+```
+
 다른 터미널이나 CloudShell 에서 스택별 상태를 볼 수도 있습니다.
 
 ```bash
