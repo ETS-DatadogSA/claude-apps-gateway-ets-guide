@@ -83,18 +83,50 @@ VPC 로 가는 트래픽만 터널을 타고, 브라우저의 Entra 로그인은
 
 ## 5.2 Entra 리다이렉트 URI 교체
 
-[1.2](01-entra-id.md#12-앱-등록)의 임시값을 게이트웨이 주소로 바꿉니다. 건너뛰면 로그인 끝에서 `AADSTS50011` 로 거부됩니다.
+로그인이 끝나면 Entra 가 사용자를 게이트웨이의 `/oauth/callback` 으로 돌려보냅니다. [1.2](01-entra-id.md#12-앱-등록)에서 임시값으로 둔 리다이렉트 URI 를 실제 게이트웨이 주소로 바꿉니다. 건너뛰면 로그인 끝에서 `AADSTS50011` 로 거부됩니다.
 
+### 리다이렉트 URI 교체 명령어
 ```bash
 GWEP=$(aws cloudformation describe-stacks --stack-name ClaudeGatewayStack --query "Stacks[0].Outputs[?OutputKey=='GatewayEndpoint'].OutputValue" --output text) && az ad app update --id "$APP" --web-redirect-uris "$GWEP/oauth/callback" && echo "$GWEP/oauth/callback"
 ```
 
+### 리다이렉트 URI 교체 결과 예시
+```text
+https://cl-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.ecs.us-east-1.on.aws/oauth/callback
+```
+
+`az ad app update` 는 성공하면 아무것도 출력하지 않습니다. 마지막 줄은 `echo` 로 찍은 새 URI 이며, 4.4 의 게이트웨이 주소 뒤에 `/oauth/callback` 이 붙은 형태면 됩니다.
+
+### 리다이렉트 URI 확인 명령어
+```bash
+az ad app show --id "$APP" --query "web.redirectUris" -o tsv
+```
+
+### 리다이렉트 URI 확인 결과 예시
+```text
+https://cl-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.ecs.us-east-1.on.aws/oauth/callback
+```
+
+임시값 `https://placeholder.invalid/oauth/callback` 이 사라지고 위 주소 하나만 나오면 됩니다.
+
 ## 5.3 헬스체크
 
-VPN 연결 상태에서 실행합니다.
+VPN 을 거쳐 게이트웨이에 닿는지 확인합니다. VPN 이 연결된 상태에서 실행합니다.
 
+### 헬스체크 명령어
 ```bash
-curl -s "$GWEP/healthz"
+curl -s -w "\n%{http_code} %{remote_ip}\n" "$GWEP/healthz"
 ```
+
+### 헬스체크 결과 예시
+```text
+ok
+200 10.0.x.x
+```
+
+`ok` 와 `200` 이 나오면 됩니다. 접속 IP 가 `10.0.` 으로 시작하는 VPC 내부 주소면 VPN 을 거쳐 닿은 것입니다.
+
+> [!WARNING]
+> VPN 없이 실행하면 게이트웨이 주소가 내부 IP 로만 풀려 응답 없이 시간 초과됩니다. 5.1 의 연결 상태를 먼저 확인합니다.
 
 다음: [6. 배포 확인](06-verify.md)
