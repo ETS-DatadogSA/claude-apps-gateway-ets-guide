@@ -7,7 +7,7 @@
 | 게이트웨이 헬스 | `curl -s "$GWEP/healthz"` | `ok` |
 | 관리 콘솔 사인인 | 브라우저로 `<AdminConsoleEndpoint>/signin` | Entra 로그인 후 `/spend/dashboard` 도착 |
 | 비용 한도 | Limits 에서 테스트 한도 생성, Audit 확인 | actor 가 `oidc:<로그인한 관리자>` |
-| 모델 접근 | Models 화면 | Bedrock Anthropic 모델 목록, 기본 3종 활성 |
+| 모델 접근 | Available models 화면 | Bedrock Anthropic 모델 목록, 기본 3종 `Offered` |
 | 실제 추론 | Claude Code 로 게이트웨이 로그인 후 프롬프트 1회 | 응답 완료, Audit 에 추론 기록 |
 
 원본의 화면 설명은 [original/03-verify.md](original/03-verify.md) 에 있습니다.
@@ -61,19 +61,54 @@ https://cl-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy.ecs.us-east-1.on.aws/signin
 
 ## 6.3 비용 한도와 감사 로그
 
-1. Limits(`/spend/limits`)에서 테스트 한도(예: 조직, 월 $10)를 만듭니다.
-2. Audit(`/spend/audit`)에서 actor 가 로그인한 관리자 본인(`oidc:<subject>`)인지 봅니다.
-3. 테스트 한도를 지웁니다.
+관리 콘솔에서 바꾼 비용 한도가 게이트웨이에 바로 저장되고, 누가 바꿨는지 관리자 본인 ID 로 감사 로그에 남는지 확인합니다.
 
-게이트웨이에 직접 조회할 수도 있습니다(관리자의 게이트웨이 토큰 필요).
+### Spend limits 화면
+비용 한도(cap)를 만들고 지우는 화면입니다. 위쪽 **Create or replace a cap** 에서 범위와 금액·기간을 정해 **Save cap** 을 누르고, 아래 **Configured caps** 에서 현재 걸린 한도를 보고 **Delete** 로 지웁니다. 재배포 없이 다음 추론 요청부터 적용됩니다.
+
+![Spend limits](images/06-console-limits.png)
+
+| 항목 | 의미 |
+| --- | --- |
+| Scope | `Organization`(조직 전체), `IdP group`(Entra 그룹), `Individual developer (OIDC sub)`(개인) |
+| Cap amount (USD) | 한도 금액. 센트 단위 정수로 저장되며 `0` 이면 모든 요청을 막음 |
+| Period | `Daily`·`Monthly` 등 한도를 다시 채우는 주기 |
+
+확인 순서:
+1. 테스트 한도를 하나 만듭니다(예: Organization, Monthly, `500`).
+2. **Configured caps** 에 방금 만든 한도가 보이는지 확인합니다.
+3. 확인이 끝나면 **Delete** 로 지웁니다. 남겨 두면 실제 추론에도 적용됩니다.
+
+### Audit log 화면
+한도 변경 이력을 최신순으로 보여 주는 화면입니다. **Actor** 가 `oidc:<로그인한 관리자의 subject>` 이면, 콘솔이 고정된 관리자 키가 아니라 로그인한 관리자 본인의 권한으로 게이트웨이를 호출했다는 뜻입니다. **Change** 에는 무엇을 어떻게 바꿨는지(`Spend_limit.upsert cap`, 범위·금액·기간)가 남습니다.
+
+![Audit log](images/06-console-audit.png)
+
+위 예시의 `amount: '50000'` 은 센트 단위라 $500 입니다. 한도를 지우면 삭제 기록이 한 줄 더 쌓입니다.
+
+<details>
+<summary>게이트웨이 API 로 감사 로그 조회하기</summary>
+
+관리자의 게이트웨이 토큰이 있으면 직접 조회할 수 있습니다.
 
 ```bash
 curl -s -H "Authorization: Bearer <관리자의 게이트웨이 토큰>" "$GWEP/v1/organizations/audit_log?limit=5"
 ```
+</details>
 
 ## 6.4 모델 접근
 
-Models(`/models`)에 리전의 Bedrock Anthropic 모델 목록이 보이고, 기본 3종(Opus, Sonnet, Haiku)이 켜져 있는지 봅니다.
+개발자가 Claude Code 에서 고를 수 있는 모델을 정하는 화면입니다. 목록은 배포 Region 의 Bedrock 카탈로그에서 실시간으로 읽어 옵니다.
+
+### Available models 화면
+**Model catalog** 에 Bedrock 의 Anthropic 모델이 나오고, 체크한 모델이 **Currently** 열에 `Offered`(개발자에게 제공 중)로 표시됩니다. 체크를 바꿔 적용하면 게이트웨이 설정을 바꿔 재배포하므로, 몇 분 뒤 모든 개발자에게 한꺼번에 반영됩니다.
+
+![Available models](images/06-console-models.png)
+
+배포 직후 기본으로 제공되는 모델은 `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-haiku-4-5` 세 개입니다(`cdk/lib/gateway-stack.ts` 의 `AVAILABLE_MODELS_RAW`). 이 세 개가 `Offered` 이고 나머지는 `Not offered` 이면 됩니다.
+
+> [!TIP]
+> 자주 바꿀 설정이 아닙니다. 바꾸면 게이트웨이가 재배포되는 동안 몇 분간 이전 목록이 보일 수 있습니다.
 
 ## 6.5 실제 추론
 
