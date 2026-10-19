@@ -92,7 +92,7 @@ unset AWS_PROFILE && eval "$(aws configure export-credentials --profile <admin-p
 - 아직 유효한 세션이 캐시에 있으면 MFA 를 묻지 않고 그 세션을 그대로 돌려줍니다. 새 1시간 세션이 필요하면 캐시를 비우고 받습니다.
 
 ```bash
-rm -f ~/.aws/cli/cache/*.json && unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_CREDENTIAL_EXPIRATION && eval "$(aws configure export-credentials --profile <admin-profile> --format env)" && export CDK_DEFAULT_ACCOUNT=$(aws sts get-caller-identity --query Account --output text) && aws sts get-caller-identity
+rm -rf ~/.aws/cli/cache && unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_CREDENTIAL_EXPIRATION && eval "$(aws configure export-credentials --profile <admin-profile> --format env)" && export CDK_DEFAULT_ACCOUNT=$(aws sts get-caller-identity --query Account --output text) && aws sts get-caller-identity
 ```
 </details>
 
