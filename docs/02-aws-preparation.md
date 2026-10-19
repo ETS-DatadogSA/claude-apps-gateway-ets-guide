@@ -50,7 +50,7 @@ npm warn install-scripts   esbuild@0.21.5 (postinstall: node install.js)
 0.21.5
 ```
 
-마지막 줄에 `0.21.x` 가 나오면 성공입니다. npm warn 관련 내용의 경우 배포해 영향이 없으므로 진행합니다.
+마지막 줄에 `0.21.x` 가 나오면 성공입니다. npm warn 관련 내용은 배포에 영향이 없으므로 그대로 진행합니다.
 
 - `vulnerabilities`: 원본 리포 의존성에 대한 `npm audit` 요약입니다. `npm audit fix` 는 실행하지 않습니다.
 - `install-scripts … not yet covered by allowScripts`: npm 이 설치 스크립트를 기본으로 막아서 나오는 경고입니다. esbuild 실행 파일은 `@esbuild/<플랫폼>` 패키지로 따로 설치되므로 스크립트가 막혀도 동작합니다.
@@ -64,17 +64,17 @@ npm warn install-scripts   esbuild@0.21.5 (postinstall: node install.js)
 컨테이너 이미지는 AWS 안의 임시 EC2 가 빌드하므로 로컬 Docker 가 필요 없습니다. 하지만 Lambda 번들링(`NodejsFunction`)은 로컬에서 하고, `cdk/package.json` 에는 `esbuild` 가 없습니다. 버전 `^0.21` 은 CDK 의 Docker 폴백과 맞춘 값입니다.
 </details>
 
-## 2.3 리전과 자격증명 고정
+## 2.3 AWS Region과 배포 자격증명 고정
 
-리전을 us-east-1 로 고정하고, 배포에 쓸 자격증명이 무엇인지 확인합니다. 기본 리전이 다른 환경(예: `ap-northeast-2`)이면 반드시 덮어씁니다. \
+AWS Region을 us-east-1 로 고정하고, 배포에 쓸 자격증명이 무엇인지 확인합니다. 기본 Region이 다른 환경(예: `ap-northeast-2`)이면 반드시 덮어씁니다. \
 `AWS_PAGER=""` 는 AWS CLI 가 출력을 페이저(`(END)` 화면)로 보여 주지 않게 합니다.
 
-### 리전·자격증명 확인 명령어
+### Region·자격증명 확인 명령어
 ```bash
 export AWS_REGION=us-east-1 AWS_DEFAULT_REGION=us-east-1 CDK_DEFAULT_REGION=us-east-1 AWS_PAGER="" && aws sts get-caller-identity
 ```
 
-### 리전·자격증명 확인 결과 예시
+### Region·자격증명 확인 결과 예시
 ```json
 {
     "UserId": "AIDAXXXXXXXXXXXXXXXXX",
@@ -142,7 +142,7 @@ aws bedrock list-inference-profiles --query "inferenceProfileSummaries[?starts_w
 
 ## 2.5 Aurora 버전 확인
 
-`cdk/lib/database-stack.ts` 는 Aurora PostgreSQL `VER_16_6` 으로 고정돼 있습니다. 리전에 `16.6` 이 없으면 database 스택이 실패합니다.
+`cdk/lib/database-stack.ts` 는 Aurora PostgreSQL `VER_16_6` 으로 고정돼 있습니다. 리전에 `16.6` 이 없으면 database 스택 배포가 실패합니다.
 
 ### Aurora 버전 확인 명령어
 ```bash
@@ -172,8 +172,7 @@ aws rds describe-db-engine-versions --engine aurora-postgresql --region us-east-
 ```
 
 > [!WARNING]
-> 결과에 `"16.6"` 이 없으면(`16.6-limitless` 만 있으면) database 스택이 실패합니다. 아래 순서로 버전을 바꿉니다. \
-> 2026-09-18 과 2026-10-19 us-east-1 에서 모두 `16.6` 이 없었습니다.
+> 결과에 `"16.6"` 이 없으면(`16.6-limitless` 만 있으면) database 스택 배포가 실패합니다. 아래 순서로 버전을 바꿉니다.
 
 `"16.6"` 이 있으면 이 절의 나머지는 건너뜁니다.
 
@@ -225,6 +224,6 @@ sed -i 's/AuroraPostgresEngineVersion.VER_16_6,/AuroraPostgresEngineVersion.VER_
 ```
 
 > [!TIP]
-> 이 수정은 배포용 트리에만 하고 커밋하지 않습니다. 이미 배포 중에 database 스택이 실패했다면 [10장](10-troubleshooting.md#aurora-버전-없음)대로 실패한 스택을 지운 뒤 다시 배포합니다.
+> 이 수정은 배포용 트리에만 하고 커밋하지 않습니다. 이미 배포 중에 database 스택 배포가 실패했다면 [10장](10-troubleshooting.md#aurora-버전-없음)대로 실패한 스택을 지운 뒤 다시 배포합니다.
 
 다음: [3. Entra 용 설정값 반영](03-configure-source.md)
