@@ -2,16 +2,16 @@
 
 리포를 받고, 리전·자격증명을 고정하고, 배포를 막는 두 가지(Bedrock 추론 프로파일, Aurora 버전)를 미리 확인합니다.
 
-## 2.1 리포 clone
+## 2.1 Repository clone
 
 배포에 쓸 소스를 새 폴더로 받습니다. 명령을 실행한 위치 아래에 `claude-apps-gateway-ets-guide` 폴더가 생깁니다.
 
-### 리포 clone 명령어
+### Repository clone 명령어
 ```bash
 git clone https://github.com/ETS-DatadogSA/claude-apps-gateway-ets-guide.git && cd claude-apps-gateway-ets-guide
 ```
 
-### 리포 clone 결과 예시
+### Repository clone 결과 예시
 ```text
 Cloning into 'claude-apps-gateway-ets-guide'...
 ```
@@ -50,7 +50,7 @@ npm warn install-scripts   esbuild@0.21.5 (postinstall: node install.js)
 0.21.5
 ```
 
-마지막 줄에 `0.21.x` 가 나오면 성공입니다. 중간의 두 경고는 진행에 지장이 없습니다.
+마지막 줄에 `0.21.x` 가 나오면 성공입니다. npm warn 관련 내용의 경우 배포해 영향이 없으므로 진행합니다.
 
 - `vulnerabilities`: 원본 리포 의존성에 대한 `npm audit` 요약입니다. `npm audit fix` 는 실행하지 않습니다.
 - `install-scripts … not yet covered by allowScripts`: npm 이 설치 스크립트를 기본으로 막아서 나오는 경고입니다. esbuild 실행 파일은 `@esbuild/<플랫폼>` 패키지로 따로 설치되므로 스크립트가 막혀도 동작합니다.
@@ -59,7 +59,7 @@ npm warn install-scripts   esbuild@0.21.5 (postinstall: node install.js)
 > 이 명령은 `cdk/package.json`·`package-lock.json` 에 esbuild 를 추가합니다. 배포용 트리에서만 쓰고 커밋하지 않습니다.
 
 <details>
-<summary>왜 둘 중 하나가 필요한가</summary>
+<summary>둘 중 한가지 작업이 필요한 이유</summary>
 
 컨테이너 이미지는 AWS 안의 임시 EC2 가 빌드하므로 로컬 Docker 가 필요 없습니다. 하지만 Lambda 번들링(`NodejsFunction`)은 로컬에서 하고, `cdk/package.json` 에는 `esbuild` 가 없습니다. 버전 `^0.21` 은 CDK 의 Docker 폴백과 맞춘 값입니다.
 </details>
@@ -86,7 +86,7 @@ export AWS_REGION=us-east-1 AWS_DEFAULT_REGION=us-east-1 CDK_DEFAULT_REGION=us-e
 `Account` 가 배포할 계정이면 됩니다. `Arn` 은 IAM 사용자면 `:user/…`, 롤이면 `:assumed-role/…` 로 나옵니다.
 
 > [!WARNING]
-> 배포 주체는 IAM 롤을 만들 수 있어야 합니다(스택 10개, `cdk bootstrap` 5개 + SSM 파라미터). `IAMReadOnlyAccess` 처럼 IAM 이 읽기 전용인 자격증명이면 4단계 `cdk bootstrap` 에서 실패하므로, 권한이 있는 프로필로 바꿉니다.
+> 배포에 쓰는 자격증명(IAM 사용자 또는 롤)에 IAM 롤 생성 권한이 있어야 합니다. CDK 가 배포하면서 IAM 롤을 직접 만들기 때문입니다(스택 10개, `cdk bootstrap` 5개 + SSM 파라미터). `IAMReadOnlyAccess` 처럼 IAM 이 읽기 전용인 자격증명이면 4단계 `cdk bootstrap` 에서 실패하므로, 권한이 있는 프로필로 바꿉니다.
 
 ### MFA assume 프로필을 쓰는 경우
 
