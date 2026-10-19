@@ -185,6 +185,41 @@ aws cloudformation list-stacks --region us-east-1 --query "StackSummaries[?start
 - 보안 관련 변경이 있는 스택마다 승인을 묻습니다. `--require-approval never` 로 생략할 수 있습니다.
 - 중간에 자격증명이 만료돼도 CloudFormation 은 계속 진행됩니다. 다시 인증하고 같은 명령을 실행합니다.
 
+### 다시 실행한 화면 예시
+세션이 만료돼 중간에 멈췄다면 `Ctrl+C` 로 빠져나와 [2.3](02-aws-preparation.md#23-aws-region과-배포-자격증명-고정) 인증을 다시 하고, 같은 배포 명령을 실행합니다. 이미 끝난 스택은 `(no changes)` 로 넘어가고 남은 스택부터 이어서 승인을 묻습니다.
+
+```text
+ClaudeGatewayVpnStack: deploying... [5/7]
+
+✅  ClaudeGatewayVpnStack (no changes)
+
+✨  Deployment time: 0s
+
+Outputs:
+ClaudeGatewayVpnStack.ClientVpnEndpointId = cvpn-endpoint-xxxxxxxxxxxxxxxxx
+...
+ClaudeGatewayStack: deploying... [6/7]
+
+✅  ClaudeGatewayStack
+
+Outputs:
+ClaudeGatewayStack.AdminOktaGroupName = zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz
+...
+ClaudeGatewayStack.GatewayEndpoint = https://cl-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.ecs.us-east-1.on.aws
+ClaudeGatewayStack.GatewayServiceArn = arn:aws:ecs:us-east-1:123456789012:service/default/claudegatewaystack-gateway
+ClaudeGatewayStack.OidcIssuer = https://login.microsoftonline.com/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/v2.0
+...
+ClaudeGatewayAdminConsoleStack
+ClaudeGatewayAdminConsoleStack: creating CloudFormation changeset...
+...
+Stack ClaudeGatewayAdminConsoleStack
+IAM Statement Changes
+...
+"--require-approval" is enabled and stack includes security-sensitive updates: Do you wish to deploy these changes? (y/n)
+```
+
+`y` 를 입력한 뒤 **Enter** 까지 눌러야 진행됩니다. `y` 만 입력된 채로 두면 스택이 `REVIEW_IN_PROGRESS` 에서 움직이지 않습니다.
+
 > [!WARNING]
 > `oidcClientSecret` 은 `cdk.context.json` 과 `cdk.out/` 템플릿에 평문으로 남고, CloudFormation 콘솔에서도 보입니다. 운영에서는 Secrets Manager 에 따로 만들고 ARN 으로 참조합니다.
 
