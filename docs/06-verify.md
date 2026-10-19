@@ -8,7 +8,7 @@
 | 관리 콘솔 사인인 | 브라우저로 `<AdminConsoleEndpoint>/signin` | Entra 로그인 후 `/spend/dashboard` 도착 |
 | 비용 한도 | Limits 에서 테스트 한도 생성, Audit 확인 | actor 가 `oidc:<로그인한 관리자>` |
 | 모델 접근 | Available models 화면 | Bedrock Anthropic 모델 목록, 기본 3종 `Offered` |
-| 실제 추론 | Claude Code 로 게이트웨이 로그인 후 프롬프트 1회 | 응답 완료, Audit 에 추론 기록 |
+| 실제 추론 | Claude Code 로 게이트웨이 로그인 후 프롬프트 1회 | 응답 완료, Effective spend 에 사용자 표시 |
 
 원본의 화면 설명은 [original/03-verify.md](original/03-verify.md) 에 있습니다.
 
@@ -86,13 +86,16 @@ https://cl-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy.ecs.us-east-1.on.aws/signin
 
 위 예시의 `amount: '50000'` 은 센트 단위라 $500 입니다. 한도를 지우면 삭제 기록이 한 줄 더 쌓입니다.
 
+> [!IMPORTANT]
+> 이 Audit log 는 **비용 한도 변경만** 기록합니다. 관리 콘솔 로그인, 추론 요청, 모델 접근(6.4) 변경은 남지 않습니다. 추론 사용량은 **Effective spend** 에서 보고, 모델 접근 변경은 CloudTrail 에 콘솔의 ECS task role 로 남습니다([7장](07-admin-console.md)).
+
 <details>
 <summary>게이트웨이 API 로 감사 로그 조회하기</summary>
 
-관리자의 게이트웨이 토큰이 있으면 직접 조회할 수 있습니다.
+관리자의 게이트웨이 토큰이 있으면 직접 조회할 수 있습니다. 관리 콘솔의 Audit log 화면이 부르는 것과 같은 API 입니다(`admin-console/app/gateway_client.py` 의 `get_audit`).
 
 ```bash
-curl -s -H "Authorization: Bearer <관리자의 게이트웨이 토큰>" "$GWEP/v1/organizations/audit_log?limit=5"
+curl -s -H "Authorization: Bearer <관리자의 게이트웨이 토큰>" "$GWEP/v1/organizations/spend_limits/audit?limit=5"
 ```
 </details>
 
@@ -127,6 +130,6 @@ macOS 는 `/Library/Application Support/ClaudeCode/managed-settings.json` 에 �
 1. VPN 을 연결한 채 새 터미널에서 `claude` 를 실행합니다.
 2. "Trust gateway" 프롬프트의 호스트명이 방금 배포한 게이트웨이인지 확인합니다.
 3. device 인증을 승인하고 프롬프트를 하나 실행합니다.
-4. 콘솔 Audit 에 추론 기록(모델, 사용자)이 남는지 봅니다.
+4. 관리 콘솔 **Effective spend** 에 로그인한 사용자와 사용액이 나타나는지 봅니다. 추론은 Audit log 에 남지 않습니다.
 
 다음: [7. 관리 콘솔 사용법](07-admin-console.md)
