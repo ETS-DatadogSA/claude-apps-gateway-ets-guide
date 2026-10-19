@@ -220,6 +220,38 @@ IAM Statement Changes
 
 `y` 를 입력한 뒤 **Enter** 까지 눌러야 진행됩니다. `y` 만 입력된 채로 두면 스택이 `REVIEW_IN_PROGRESS` 에서 움직이지 않습니다.
 
+### 배포 완료 화면 예시
+마지막 `ClaudeGatewayAdminConsoleStack` 이 끝나면 관리 콘솔 주소와 전체 소요 시간이 나오고 프롬프트로 돌아옵니다.
+
+```text
+✅  ClaudeGatewayAdminConsoleStack
+
+✨  Deployment time: ...s
+
+Outputs:
+ClaudeGatewayAdminConsoleStack.AdminConsoleEndpoint = https://cl-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy.ecs.us-east-1.on.aws
+Stack ARN:
+arn:aws:cloudformation:us-east-1:123456789012:stack/ClaudeGatewayAdminConsoleStack/...
+
+✨  Total time: ...s
+```
+
+스택 7개가 모두 `CREATE_COMPLETE` 인지 확인합니다. 다시 실행해 한 번 더 배포된 스택은 `UPDATE_COMPLETE` 로 나올 수 있습니다.
+
+```bash
+aws cloudformation list-stacks --region us-east-1 --query "StackSummaries[?starts_with(StackName,'ClaudeGateway') && StackStatus!='DELETE_COMPLETE'].[StackName,StackStatus]" --output text
+```
+
+```text
+ClaudeGatewayAdminConsoleStack	CREATE_COMPLETE
+ClaudeGatewayStack	UPDATE_COMPLETE
+ClaudeGatewayBuildMachineStack	CREATE_COMPLETE
+ClaudeGatewayVpnStack	CREATE_COMPLETE
+ClaudeGatewayDatabaseStack	CREATE_COMPLETE
+ClaudeGatewaySecretsStack	CREATE_COMPLETE
+ClaudeGatewayNetworkStack	CREATE_COMPLETE
+```
+
 > [!WARNING]
 > `oidcClientSecret` 은 `cdk.context.json` 과 `cdk.out/` 템플릿에 평문으로 남고, CloudFormation 콘솔에서도 보입니다. 운영에서는 Secrets Manager 에 따로 만들고 ARN 으로 참조합니다.
 
@@ -257,19 +289,28 @@ secret 이 평문으로 들어가므로 파일 관리에 주의합니다(`.gitig
 
 ## 4.4 출력값 기록
 
-배포가 끝나면 두 주소가 출력됩니다.
+배포 출력 중 이후 단계에서 쓰는 주소는 두 개입니다. 게이트웨이 주소는 [5.2](05-vpn-and-redirect.md#52-entra-리다이렉트-uri-교체) 리다이렉트 URI 에, 관리 콘솔 주소는 [6단계](06-verify.md) 사인인에 씁니다.
 
-```
+```text
 ClaudeGatewayStack.GatewayEndpoint                  = https://cl-xxxx.ecs.us-east-1.on.aws
 ClaudeGatewayAdminConsoleStack.AdminConsoleEndpoint = https://cl-yyyy.ecs.us-east-1.on.aws
 ```
 
-다시 조회할 때:
+### 출력값 조회 명령어
+배포 출력을 놓쳤거나 새 셸에서 다시 볼 때 씁니다.
 
 ```bash
 GWEP=$(aws cloudformation describe-stacks --stack-name ClaudeGatewayStack --query "Stacks[0].Outputs[?OutputKey=='GatewayEndpoint'].OutputValue" --output text) && echo "GWEP=$GWEP"
 aws cloudformation describe-stacks --stack-name ClaudeGatewayAdminConsoleStack --query "Stacks[0].Outputs[?OutputKey=='AdminConsoleEndpoint'].OutputValue" --output text
 ```
+
+### 출력값 조회 결과 예시
+```text
+GWEP=https://cl-xxxx.ecs.us-east-1.on.aws
+https://cl-yyyy.ecs.us-east-1.on.aws
+```
+
+`cl-` 뒤는 32자리 16진수입니다. `GWEP` 는 5.2 에서 그대로 씁니다.
 
 <details>
 <summary>주소를 서비스에 따로 넣지 않아도 되는 이유</summary>
