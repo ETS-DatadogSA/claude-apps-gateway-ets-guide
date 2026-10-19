@@ -115,21 +115,64 @@ curl -s -H "Authorization: Bearer <관리자의 게이트웨이 토큰>" "$GWEP/
 
 ## 6.5 실제 추론
 
-macOS 는 `/Library/Application Support/ClaudeCode/managed-settings.json` 에 다음을 씁니다(`sudo` 필요).
+개발자 PC 의 Claude Code 가 게이트웨이로 로그인하고, 게이트웨이를 거쳐 Bedrock 으로 추론하는지 확인합니다. Claude Code 는 게이트웨이 주소를 OS 의 **managed settings**(관리자 정책 파일)에서만 읽으므로 그 파일을 씁니다.
 
+> [!WARNING]
+> managed settings 는 그 PC 의 **모든** Claude Code 에 적용됩니다. 쓰고 나면 이 PC 의 Claude Code 는 게이트웨이로만 로그인합니다. 평가가 끝나면 아래 **되돌리기**로 파일을 지웁니다.
+
+> [!IMPORTANT]
+> 게이트웨이 로그인 키(`forceLoginMethod: "gateway"`, `forceLoginGatewayUrl`)는 관리자 소스(시스템 경로의 파일, MDM, Windows HKLM)에서만 읽습니다. 개인 `~/.claude/settings.json` 이나 Windows `HKCU` 레지스트리에 넣으면 적용되지 않습니다. 근거: [Deploy managed settings](https://code.claude.com/docs/en/managed-settings)
+
+### managed settings 쓰기 명령어 (macOS)
+`$GWEP` 는 [4.4](04-deploy.md#44-출력값-기록)의 게이트웨이 주소입니다. `sudo` 비밀번호를 묻습니다.
+
+```bash
+sudo mkdir -p "/Library/Application Support/ClaudeCode" && printf '{\n  "forceLoginMethod": "gateway",\n  "forceLoginGatewayUrl": "%s"\n}\n' "$GWEP" | sudo tee "/Library/Application Support/ClaudeCode/managed-settings.json"
+```
+
+### managed settings 쓰기 결과 예시 (macOS)
 ```json
 {
   "forceLoginMethod": "gateway",
-  "forceLoginGatewayUrl": "https://<GatewayEndpoint>"
+  "forceLoginGatewayUrl": "https://cl-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.ecs.us-east-1.on.aws"
 }
 ```
 
-> [!IMPORTANT]
-> 게이트웨이 주소는 managed settings 에서만 읽습니다. 개인 `~/.claude/settings.json` 에 넣으면 적용되지 않습니다. 사용자 경로(`~/Library/Application Support/ClaudeCode/`)에도 파일이 있으면 시스템 경로가 우선합니다.
+### managed settings 쓰기 명령어 (Windows)
+**관리자 권한 PowerShell** 에서 실행합니다. `<GatewayEndpoint>` 는 4.4 의 게이트웨이 주소로 바꿉니다. BOM 없는 UTF-8 로 쓰도록 `WriteAllText` 를 씁니다.
 
-1. VPN 을 연결한 채 새 터미널에서 `claude` 를 실행합니다.
-2. "Trust gateway" 프롬프트의 호스트명이 방금 배포한 게이트웨이인지 확인합니다.
-3. device 인증을 승인하고 프롬프트를 하나 실행합니다.
-4. 관리 콘솔 **Effective spend** 에 로그인한 사용자와 사용액이 나타나는지 봅니다. 추론은 Audit log 에 남지 않습니다.
+```powershell
+$gw = "https://<GatewayEndpoint>"
+New-Item -ItemType Directory -Force "C:\Program Files\ClaudeCode" | Out-Null
+[IO.File]::WriteAllText("C:\Program Files\ClaudeCode\managed-settings.json", "{`n  `"forceLoginMethod`": `"gateway`",`n  `"forceLoginGatewayUrl`": `"$gw`"`n}`n")
+Get-Content "C:\Program Files\ClaudeCode\managed-settings.json"
+```
+
+Windows 는 `C:\Program Files\ClaudeCode\` 만 읽고, 예전 경로 `C:\ProgramData\ClaudeCode\` 는 읽지 않습니다. 이 절차는 Windows 에서 검증하지 않았습니다.
+
+### 추론 확인 순서
+1. VPN 을 연결한 채 **새** 터미널에서 `claude` 를 실행합니다. 이미 떠 있는 Claude Code 는 다시 시작해야 새 설정을 읽습니다.
+2. `/status` 의 `Setting sources` 에 `Enterprise managed settings (file)` 이 있는지 봅니다.
+3. "Trust gateway" 프롬프트의 호스트명이 방금 배포한 게이트웨이(`cl-….ecs.us-east-1.on.aws`)인지 확인합니다.
+4. device 인증을 승인하고(6.2 와 같은 흐름) 프롬프트를 하나 실행합니다.
+5. 관리 콘솔 **Effective spend** 에 로그인한 사용자와 사용액이 나타나는지 봅니다. 추론은 Audit log 에 남지 않습니다.
+
+<details>
+<summary>되돌리기</summary>
+
+파일을 지우고 Claude Code 를 다시 시작하면 원래 로그인 방식으로 돌아갑니다.
+
+macOS:
+
+```bash
+sudo rm "/Library/Application Support/ClaudeCode/managed-settings.json"
+```
+
+Windows (관리자 PowerShell):
+
+```powershell
+Remove-Item "C:\Program Files\ClaudeCode\managed-settings.json"
+```
+</details>
 
 다음: [7. 관리 콘솔 사용법](07-admin-console.md)
