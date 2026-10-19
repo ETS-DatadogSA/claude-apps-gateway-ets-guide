@@ -2,7 +2,7 @@
 
 ## 9.1 업데이트
 
-변경을 받아 와 재배포합니다. 로컬의 GUID 수정([3.1](03-configure-source.md#31-관리-콘솔의-어드민-그룹-지정))은 `--autostash` 가 잠시 치웠다가 되살립니다.
+변경을 받아 와 재배포합니다. 로컬의 GUID 수정([3.1](03-configure-source.md#31-관리-콘솔의-admin-group-지정))은 `--autostash` 가 잠시 치웠다가 되살립니다.
 
 ```bash
 git pull --autostash && git status --short
