@@ -156,8 +156,21 @@ arn:aws:cloudformation:us-east-1:123456789012:stack/ClaudeGatewayDatabaseStack/.
 ClaudeGatewayVpnStack
 ClaudeGatewayVpnStack: creating CloudFormation changeset...
 ...
+✅  ClaudeGatewayVpnStack
+
+✨  Deployment time: ...s
+
+Outputs:
+ClaudeGatewayVpnStack.ClientVpnEndpointId = cvpn-endpoint-xxxxxxxxxxxxxxxxx
+ClaudeGatewayVpnStack.VpnClientProfileSecretArn = arn:aws:secretsmanager:us-east-1:123456789012:secret:VpnClientProfileSecret...
+...
+ClaudeGatewayBuildMachineStack
+ClaudeGatewayBuildMachineStack: creating CloudFormation changeset...
+...
 "--require-approval" is enabled and stack includes security-sensitive updates: Do you wish to deploy these changes? (y/n)
 ```
+
+Vpn 스택 출력의 `ClientVpnEndpointId`·`VpnClientProfileSecretArn` 은 [5단계](05-vpn-and-redirect.md)에서 VPN 프로필을 꺼낼 때 쓰는 값입니다. 스택 순서는 의존 관계에 따라 정해지므로 위 그림의 번호와 다를 수 있습니다.
 
 > [!TIP]
 > 승인 질문에 답하지 않으면 다음 스택이 시작되지 않고 기다립니다. 자리를 비울 거라면 처음부터 `--require-approval never` 를 붙입니다.
