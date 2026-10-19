@@ -1,6 +1,6 @@
 # 3. Entra 용 설정값 반영
 
-원본은 Okta 기준이라 설정 세 곳이 Entra 와 맞지 않습니다. 두 곳은 이 리포에 이미 반영돼 있고, 어드민 그룹 GUID 한 곳만 직접 채웁니다. 리포 루트에서 실행합니다.
+원본은 Okta 기준이라 설정 세 곳이 Entra 와 맞지 않습니다. 두 곳은 이 리포에 이미 반영돼 있고, Admin Group GUID 한 곳만 직접 채웁니다. 리포 루트에서 실행합니다.
 
 | 위치 | 원본 값 | 이 리포 값 | 이유 |
 | --- | --- | --- | --- |
@@ -14,10 +14,11 @@
 Anthropic 공식 문서는 Entra 로 갈 때 `userinfo_fallback` 과 `groups` 스코프를 함께 제거하라고 안내합니다. 키를 생략했을 때의 기본값을 확인할 수 없어, 이 리포는 `false` 로 명시했습니다.
 </details>
 
-## 3.1 관리 콘솔의 어드민 그룹 지정
+## 3.1 관리 콘솔의 Admin Group 지정
 
-[1.5](01-entra-id.md#15-admin-group-생성)의 그룹 GUID 를 넣습니다.
+관리 콘솔은 소스에 적힌 그룹 GUID 로 관리자를 판단합니다. [1.5](01-entra-id.md#15-admin-group-생성)의 `GRP` 를 넣습니다.
 
+### Admin Group 지정 명령어
 macOS:
 
 ```bash
@@ -30,6 +31,13 @@ Windows Git Bash / Linux:
 sed -i "s/<ENTRA_ADMIN_GROUP_OBJECT_ID>/$GRP/" admin-console/app/auth.py && grep -n "^ADMIN_GROUP_NAME" admin-console/app/auth.py
 ```
 
+### Admin Group 지정 결과 예시
+```text
+29:ADMIN_GROUP_NAME = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+```
+
+따옴표 안이 1.5 의 `GRP` 와 같으면 됩니다.
+
 > [!WARNING]
 > 자리표시자를 그대로 두고 배포해도 배포는 성공하지만, 아무도 콘솔 관리자 권한을 받지 못합니다.
 
@@ -41,17 +49,25 @@ sed -i "s/<ENTRA_ADMIN_GROUP_OBJECT_ID>/$GRP/" admin-console/app/auth.py && grep
 
 ## 3.2 확인
 
+Entra 용 설정 세 곳이 모두 반영됐는지 봅니다.
+
+### 설정 확인 명령어
 ```bash
 grep -n "userinfo_fallback:\|^  scopes:" gateway/gateway.yaml && grep -n "^ADMIN_GROUP_NAME" admin-console/app/auth.py
 ```
 
-기대 출력:
+### 설정 확인 결과 예시
+```text
+25:  userinfo_fallback: false
+38:  scopes: [openid, profile, email, offline_access]
+29:ADMIN_GROUP_NAME = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+```
 
-```
-userinfo_fallback: false
-scopes: [openid, profile, email, offline_access]
-ADMIN_GROUP_NAME = "<GRP 의 GUID>"
-```
+| 줄 | 확인할 것 |
+| --- | --- |
+| `userinfo_fallback` | `false` |
+| `scopes` | `groups` 가 없음 |
+| `ADMIN_GROUP_NAME` | 1.5 의 `GRP` |
 
 `auth.py` 의 GUID 는 테넌트 고유값이라 커밋하지 않습니다. 되돌리려면 `git checkout -- admin-console/app/auth.py`.
 
