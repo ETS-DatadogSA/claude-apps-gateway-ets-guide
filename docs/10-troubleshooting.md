@@ -5,8 +5,8 @@
 | 사인인 페이지가 오류 없이 멈춤 | VPN 미연결, 또는 full-tunnel | [5.1](05-vpn-and-redirect.md#51-vpn-연결) |
 | 로그인 끝에 `AADSTS50011` | 리다이렉트 URI 가 임시값 | [5.2](05-vpn-and-redirect.md#52-entra-리다이렉트-uri-교체) |
 | 사인인은 되나 `/not-authorized` | groups 가 콘솔까지 오지 않음 | [아래](#사인인은-되는데-not-authorized) |
-| `Missing required context values` | `-c` 누락 (bootstrap·destroy 포함) | 네 개 모두 전달, 또는 [`cdk.context.json`](04-deploy.md#43-컨텍스트-파일로-저장-선택) |
-| `Unable to resolve AWS account to use` | CDK 가 CLI 의 MFA 세션을 못 읽음 | [2.3](02-aws-preparation.md#mfa-assume-프로필을-쓰는-경우) |
+| `Missing required context values` | `-c` 누락 (bootstrap·destroy 포함) | 네 개 모두 전달, 또는 [`cdk.context.json`](04-deploy.md#42-컨텍스트-파일로-저장) |
+| `Unable to resolve AWS account to use` | CDK 가 CLI 의 MFA 세션을 못 읽음 | [2.3](02-aws-preparation.md#23-aws-region과-배포-자격증명-고정) |
 | `CDKToolkit` 이 `ROLLBACK_COMPLETE` | `iam:CreateRole` 권한 없음 | 권한 있는 주체로 [스택 삭제](#rollback_complete-스택-정리) 후 재시도 |
 | `Cannot find version 16.6 for aurora-postgresql` | 리전에서 버전이 내려감 | [아래](#aurora-버전-없음) |
 | 게이트웨이 크래시루프 후 스택 롤백 | `gateway.yaml` 에 스키마에 없는 키 | [3단계](03-configure-source.md) 외의 변경을 되돌림 |

@@ -69,8 +69,13 @@ grep -n "userinfo_fallback:\|^  scopes:" gateway/gateway.yaml && grep -n "^ADMIN
 | `scopes` | `groups` 가 없음 |
 | `ADMIN_GROUP_NAME` | 1.5 의 `GRP` |
 
-`auth.py` 의 GUID 는 테넌트 고유값이라 커밋하지 않습니다. 되돌리려면 `git checkout -- admin-console/app/auth.py`.
+> [!TIP]
+> `auth.py` 의 GUID 는 테넌트 고유값이라 커밋하지 않습니다. 되돌리려면 `git checkout -- admin-console/app/auth.py`.
 
-App Roles 를 쓰는 대안도 있습니다. App Role 을 정의하고 `gateway.yaml` 에 `oidc.groups_claim: roles` 를 두면 GUID 대신 role 값이 들어옵니다(이 가이드에서는 미검증).
+<details>
+<summary>그룹 GUID 대신 App Roles 를 쓰는 방법 (미검증)</summary>
+
+App Role 을 정의하고 `gateway.yaml` 에 `oidc.groups_claim: roles` 를 두면 GUID 대신 role 값이 들어옵니다. 이 가이드에서는 검증하지 않았습니다.
+</details>
 
 다음: [4. CDK 배포](04-deploy.md)
