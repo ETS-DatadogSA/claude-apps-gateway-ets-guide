@@ -8,6 +8,14 @@
 
 게이트웨이는 프라이빗 서브넷에 있어 VPN 으로만 닿습니다. 4장에서 만든 Client VPN 의 접속 프로필(`.ovpn`)을 Secrets Manager 에서 받아 OpenVPN 클라이언트로 연결합니다.
 
+> [!IMPORTANT]
+> 관리자도 VPN 이 필요합니다. 관리 콘솔 사인인 중 브라우저가 게이트웨이의 `/device` 페이지로 이동하기 때문입니다. VPN 없이 사인인하면 오류 없이 무한 대기합니다.
+
+### 콘솔에서 확인하는 방법
+**VPC → Client VPN 엔드포인트** → 엔드포인트 선택 → **세부 정보**에서 상태 `Available`, 클라이언트 CIDR `10.100.0.0/16`, 분할 터널 `활성`을 확인합니다.
+
+![Client VPN 엔드포인트 세부 정보](images/05-client-vpn-endpoint.png)
+
 ### VPN 프로필 받기 명령어
 뒤의 `ls`·`grep` 은 확인용입니다. 인증서와 키는 화면에 출력하지 않습니다.
 
@@ -29,14 +37,43 @@ remote-cert-tls server
 
 `remote` 의 엔드포인트 ID 가 4장 Vpn 스택 출력의 `ClientVpnEndpointId` 와 같고, 마지막 숫자(인증서·키 블록 수)가 `3` 이면 됩니다.
 
-1. [OpenVPN Connect](https://openvpn.net/client/) 를 설치합니다.
-2. 프로필 가져오기(Import Profile)로 `claude-gateway-vpn-client.ovpn` 을 불러옵니다.
-3. 프로필을 켜서 연결합니다.
+> [!WARNING]
+> 콘솔의 **클라이언트 구성 다운로드** 버튼으로 받은 `downloaded-client-config.ovpn` 은 쓰지 않습니다. 이 VPN 은 상호 TLS 인증이라 클라이언트 인증서와 키가 필요한데, 콘솔 파일에는 그 두 가지가 없습니다. 위 명령으로 받은 파일에만 `<cert>`·`<key>` 가 들어 있습니다.
 
-> [!IMPORTANT]
-> 관리자도 VPN 이 필요합니다. 관리 콘솔 사인인 중 브라우저가 게이트웨이의 `/device` 페이지로 이동하기 때문입니다. VPN 없이 사인인하면 오류 없이 무한 대기합니다.
+<details>
+<summary>콘솔 파일을 불러왔을 때의 화면</summary>
 
-`.ovpn` 에는 클라이언트 인증서와 키가 들어 있으니 커밋하지 않습니다. 같은 파일을 [AWS VPN Client](https://docs.aws.amazon.com/vpn/latest/clientvpn-user/user-getting-started.html) 등 다른 OpenVPN 클라이언트로 불러와도 됩니다.
+콘솔에서 받은 파일을 불러와 연결하면 OpenVPN Connect 가 인증서를 추가하라고 묻습니다. **Cancel** 로 닫고, 그 프로필을 지운 뒤 위 명령으로 받은 파일을 다시 불러옵니다.
+
+![콘솔의 클라이언트 구성 다운로드](images/05-console-config-download-wrong.png)
+
+<img src="images/05-openvpn-import-wrong.png" alt="downloaded-client-config.ovpn 불러오기" width="300"> <img src="images/05-openvpn-missing-cert.png" alt="Missing external certificate" width="300">
+</details>
+
+### OpenVPN Connect 로 연결
+1. [OpenVPN Connect](https://openvpn.net/client/) 를 설치합니다. macOS 는 Apple Silicon·Intel 중 맞는 버전을 받습니다.
+
+   ![OpenVPN Connect 다운로드](images/05-openvpn-download.png)
+
+2. 받은 `claude-gateway-vpn-client.ovpn` 을 OpenVPN Connect 창으로 끌어다 놓거나 **Upload File** 로 불러옵니다. 경로가 위 명령을 실행한 `cdk/` 의 파일인지 확인하고 **Import** 를 누릅니다. `open .` 으로 `cdk/` 폴더를 Finder 에서 열 수 있습니다.
+3. **Connect** 를 누릅니다. `Securely Connected!` 가 나오면 연결된 것입니다.
+
+<img src="images/05-openvpn-import.png" alt="claude-gateway-vpn-client.ovpn 불러오기" width="300"> <img src="images/05-openvpn-connected.png" alt="Securely Connected" width="300">
+
+### 연결 확인 명령어
+```bash
+ifconfig | grep -A2 "^utun" | grep "inet 10.100"
+```
+
+### 연결 확인 결과 예시
+```text
+	inet 10.100.0.162 --> 10.100.0.161 netmask 0xffffffe0
+```
+
+`10.100.` 으로 시작하는 주소가 나오면 VPN 주소를 받은 것입니다. 숫자는 연결할 때마다 다를 수 있습니다.
+
+> [!TIP]
+> `.ovpn` 에는 클라이언트 인증서와 키가 들어 있으니 커밋하지 않습니다(`*.ovpn` 은 `.gitignore` 대상). 같은 파일을 [AWS VPN Client](https://docs.aws.amazon.com/vpn/latest/clientvpn-user/user-getting-started.html) 등 다른 OpenVPN 클라이언트로 불러와도 됩니다.
 
 <details>
 <summary>split-tunnel 인 이유</summary>
