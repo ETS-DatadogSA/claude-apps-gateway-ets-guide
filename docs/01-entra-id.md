@@ -299,8 +299,8 @@ APP=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx OBJ=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyy
 | `ISSUER` | 가운데가 1.1 의 테넌트 ID, 끝이 `/v2.0` |
 | `SECRET_LEN` | 0 이 아님 (1.4 출력의 길이와 같음) |
 
-### 변수가 비어 있을 때 (셸을 잃은 경우)
-값이 비어 있으면 셸이 바뀐 것입니다. 터미널을 닫았거나 앱이 다시 시작된 경우입니다. \
+### 변수가 비어 있을 때 (셸을 닫거나 새로운 세션으로 진행했을 경우)
+터미널을 닫았거나 앱이 다시 시작된 경우의 조치입니다. \
 [4.3](04-deploy.md#43-컨텍스트-파일로-저장-선택)에서 파일로 저장한 뒤라면 [4.5](04-deploy.md#45-새-셸에서-변수-복원)로 복원합니다. 저장 전이라면 아래 순서로 되살립니다.
 
 > [!WARNING]
@@ -311,7 +311,7 @@ APP=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx OBJ=yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyy
 APP=$(az ad app list --display-name "Claude Apps Gateway" --query "[0].appId" -o tsv) && OBJ=$(az ad app show --id "$APP" --query id -o tsv) && GRP=$(az ad group list --display-name "claude-gateway-admins" --query "[0].id" -o tsv) && ISSUER="https://login.microsoftonline.com/$(az account show --query tenantId -o tsv)/v2.0" && echo "APP=$APP OBJ=$OBJ GRP=$GRP ISSUER=$ISSUER"
 ```
 
-**2. secret 새로 발급**: [1.4](#14-client-secret-생성) 명령을 그대로 실행합니다. `--append` 를 빼면 안 됩니다.
+**2. secret 새로 발급**: [1.4](#14-client-secret-생성) 명령을 다시 실행합니다.
 
 **3. 예전 secret 삭제**: 앱의 secret 목록에서 시작 시각이 이전인 항목의 `KeyId` 를 확인하고 지웁니다.
 ```bash
@@ -320,8 +320,6 @@ az ad app credential list --id "$APP" --query "[].{KeyId:keyId, Hint:hint, Start
 ```bash
 az ad app credential delete --id "$APP" --key-id <예전 secret 의 KeyId>
 ```
-
-포털 **인증서 및 암호 → 클라이언트 비밀**에서 값 앞자리로 구분해 휴지통 아이콘으로 지워도 됩니다.
 
 **4. 다시 확인**: 위 [변수 확인 명령어](#변수-확인-명령어)를 실행해 다섯 값이 모두 채워졌는지 봅니다.
 
