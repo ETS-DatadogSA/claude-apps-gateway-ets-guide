@@ -172,7 +172,59 @@ aws rds describe-db-engine-versions --engine aurora-postgresql --region us-east-
 ```
 
 > [!WARNING]
-> 결과에 `"16.6"` 이 없으면(`16.6-limitless` 만 있으면) database 스택이 실패합니다. [10장](10-troubleshooting.md#aurora-버전-없음)대로 버전을 올립니다. \
-> 2026-09-18 과 2026-10-19 us-east-1 에서 모두 `16.6` 이 없었고, 리전과 CDK(`aws-cdk-lib 2.261.0`) 양쪽에 있는 가장 높은 버전은 `VER_16_13` 이었습니다.
+> 결과에 `"16.6"` 이 없으면(`16.6-limitless` 만 있으면) database 스택이 실패합니다. 아래 순서로 버전을 바꿉니다. \
+> 2026-09-18 과 2026-10-19 us-east-1 에서 모두 `16.6` 이 없었습니다.
+
+`"16.6"` 이 있으면 이 절의 나머지는 건너뜁니다.
+
+### CDK 가 아는 버전 확인 명령어
+`cdk/` 에서 실행합니다. `cdk/lib/database-stack.ts` 는 CDK 상수(`VER_16_x`)로 버전을 지정하므로, 리전에 있어도 CDK 에 상수가 없는 버전은 쓸 수 없습니다.
+
+```bash
+cd cdk && grep -oE "VER_16_[0-9]+" node_modules/aws-cdk-lib/aws-rds/lib/cluster-engine.d.ts | sort -u && cd ..
+```
+
+### CDK 가 아는 버전 확인 결과 예시
+`aws-cdk-lib 2.261.0` 기준입니다.
+
+```text
+VER_16_0
+VER_16_1
+VER_16_10
+VER_16_11
+VER_16_13
+VER_16_2
+VER_16_3
+VER_16_4
+VER_16_5
+VER_16_6
+VER_16_8
+VER_16_9
+```
+
+두 결과를 대조해, `-limitless` 가 아닌 리전 버전 가운데 CDK 상수가 있는 **가장 높은 버전**을 고릅니다. 위 예시에서는 `16.14`·`16.15` 는 CDK 상수가 없으므로 `16.13`(`VER_16_13`)입니다.
+
+### Aurora 버전 변경 명령어
+리포 루트에서 실행합니다. `VER_16_13` 은 위에서 고른 버전으로 바꿉니다.
+
+macOS:
+
+```bash
+sed -i '' 's/AuroraPostgresEngineVersion.VER_16_6,/AuroraPostgresEngineVersion.VER_16_13,/' cdk/lib/database-stack.ts && grep -n "VER_16" cdk/lib/database-stack.ts
+```
+
+Windows Git Bash / Linux:
+
+```bash
+sed -i 's/AuroraPostgresEngineVersion.VER_16_6,/AuroraPostgresEngineVersion.VER_16_13,/' cdk/lib/database-stack.ts && grep -n "VER_16" cdk/lib/database-stack.ts
+```
+
+### Aurora 버전 변경 결과 예시
+```text
+49:        version: rds.AuroraPostgresEngineVersion.VER_16_13,
+```
+
+> [!TIP]
+> 이 수정은 배포용 트리에만 하고 커밋하지 않습니다. 이미 배포 중에 database 스택이 실패했다면 [10장](10-troubleshooting.md#aurora-버전-없음)대로 실패한 스택을 지운 뒤 다시 배포합니다.
 
 다음: [3. Entra 용 설정값 반영](03-configure-source.md)

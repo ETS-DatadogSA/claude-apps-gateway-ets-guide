@@ -36,21 +36,8 @@ fallback 이 켜져 있으면 id_token 에 실려 온 groups 가 userinfo 응답
 
 ## Aurora 버전 없음
 
-`cdk/lib/database-stack.ts` 의 `AuroraPostgresEngineVersion.VER_16_6` 을 리전과 CDK 양쪽에 있는 버전으로 바꿉니다.
-
-리전에서 쓸 수 있는 버전:
-
-```bash
-aws rds describe-db-engine-versions --engine aurora-postgresql --region us-east-1 --query "DBEngineVersions[?starts_with(EngineVersion,'16.')].EngineVersion" --output json
-```
-
-CDK 가 아는 버전(`cdk/` 에서):
-
-```bash
-grep -oE "VER_16_[0-9]+" node_modules/aws-cdk-lib/aws-rds/lib/cluster-engine.d.ts | sort -u
-```
-
-2026-09-18 us-east-1 기준으로는 `VER_16_13` 이 양쪽에 있었습니다. 실패한 database 스택은 아래처럼 지운 뒤 재배포합니다.
+배포 중 `ClaudeGatewayDatabaseStack` 이 Aurora 엔진 버전을 찾지 못해 실패한 경우입니다. 버전 고르기와 변경 방법은 [2.5](02-aws-preparation.md#25-aurora-버전-확인)에 있습니다. \
+버전을 바꾼 뒤, 실패한 database 스택은 아래처럼 지우고 재배포합니다.
 
 ## ROLLBACK_COMPLETE 스택 정리
 
