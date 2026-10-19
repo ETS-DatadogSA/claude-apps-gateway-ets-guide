@@ -89,6 +89,30 @@ Security Group Changes
 
 - `Do you wish to deploy these changes? (y/n)` 에 `y` 를 입력합니다. 승인 전에는 스택이 `REVIEW_IN_PROGRESS` 로 멈춰 있고 리소스가 만들어지지 않습니다.
 - `WARNING No cross-stack-reference strength configured` 는 CDK 기능 플래그 안내이며 배포에 영향이 없습니다.
+### 배포 진행 화면 예시
+`y` 를 입력하면 스택 번호(`[1/7]`), 리소스 진행 막대, 리소스별 상태가 이어서 나옵니다.
+
+```text
+"--require-approval" is enabled and stack includes security-sensitive updates: Do you wish to deploy these changes? (y/n) y
+ClaudeGatewayNetworkStack: deploying... [1/7]
+[██████████████████████████████████████████████▍···········] (24/30)
+
+1:03:03 PM | CREATE_IN_PROGRESS      | AWS::CloudFormation::Stack            | ClaudeGateway
+NetworkStack
+1:03:33 PM | CREATE_IN_PROGRESS      | AWS::EC2::VPCEndpoint                 | Vpc/SecretsMa
+nagerEndpoint
+1:03:33 PM | CREATE_IN_PROGRESS      | AWS::EC2::VPCEndpoint                 | Vpc/BedrockRu
+ntimeEndpoint
+1:03:36 PM | CREATE_IN_PROGRESS      | AWS::EC2::NatGateway                  | Vpc/publicSub
+net1/NATGateway
+```
+
+다른 터미널이나 CloudShell 에서 스택별 상태를 볼 수도 있습니다.
+
+```bash
+aws cloudformation list-stacks --region us-east-1 --query "StackSummaries[?starts_with(StackName,'ClaudeGateway') && StackStatus!='DELETE_COMPLETE'].[StackName,StackStatus]" --output text
+```
+
 - 25~35분 걸립니다. 대부분 Aurora 생성, 이미지 빌드, 로드밸런서 생성 시간입니다.
 - 보안 관련 변경이 있는 스택마다 승인을 묻습니다. `--require-approval never` 로 생략할 수 있습니다.
 - 중간에 자격증명이 만료돼도 CloudFormation 은 계속 진행됩니다. 다시 인증하고 같은 명령을 실행합니다.
