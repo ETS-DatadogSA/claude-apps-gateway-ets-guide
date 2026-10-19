@@ -130,6 +130,40 @@ IAM Policy Changes
 ClaudeGatewayDatabaseStack: deploying... [3/7]
 ```
 
+### 스택 완료 화면 예시
+스택 하나가 끝날 때마다 소요 시간과 출력값이 나오고, 바로 다음 스택의 변경 세트를 만들어 승인을 묻습니다. 출력값의 ID·ARN 은 가렸습니다.
+
+```text
+✅  ClaudeGatewayNetworkStack
+
+✨  Deployment time: 135.85s
+
+Outputs:
+ClaudeGatewayNetworkStack.ExportsOutputFnGetAttAdminConsoleSecurityGroup...GroupId... = sg-xxxxxxxxxxxxxxxxx
+...
+✅  ClaudeGatewaySecretsStack
+
+✨  Deployment time: 15.05s
+...
+✅  ClaudeGatewayDatabaseStack
+
+✨  Deployment time: 514.77s
+
+Outputs:
+ClaudeGatewayDatabaseStack.ExportsOutputRefPostgresUrlSecret... = arn:aws:secretsmanager:us-east-1:123456789012:secret:PostgresUrlSecret...
+Stack ARN:
+arn:aws:cloudformation:us-east-1:123456789012:stack/ClaudeGatewayDatabaseStack/...
+ClaudeGatewayVpnStack
+ClaudeGatewayVpnStack: creating CloudFormation changeset...
+...
+"--require-approval" is enabled and stack includes security-sensitive updates: Do you wish to deploy these changes? (y/n)
+```
+
+2026-10-19 실행 기준 소요 시간은 Network 2분 16초, Secrets 15초, Database(Aurora) 8분 35초였습니다.
+
+> [!TIP]
+> 승인 질문에 답하지 않으면 다음 스택이 시작되지 않고 기다립니다. 이번 실행에서는 Vpn 스택 승인에서 약 9분을 기다렸습니다. 자리를 비울 거라면 처음부터 `--require-approval never` 를 붙입니다.
+
 다른 터미널이나 CloudShell 에서 스택별 상태를 볼 수도 있습니다.
 
 ```bash
