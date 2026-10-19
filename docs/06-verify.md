@@ -138,17 +138,23 @@ sudo mkdir -p "/Library/Application Support/ClaudeCode" && printf '{\n  "forceLo
 }
 ```
 
-### managed settings 쓰기 명령어 (Windows)
-**관리자 권한 PowerShell** 에서 실행합니다. `<GatewayEndpoint>` 는 4.4 의 게이트웨이 주소로 바꿉니다. BOM 없는 UTF-8 로 쓰도록 `WriteAllText` 를 씁니다.
+### managed settings 파일 (Windows)
+Windows 는 아래 경로에 같은 내용의 파일을 만듭니다. `C:\Program Files` 아래라 관리자 권한이 필요합니다. `<GatewayEndpoint>` 는 4.4 의 게이트웨이 주소로 바꿉니다.
 
-```powershell
-$gw = "https://<GatewayEndpoint>"
-New-Item -ItemType Directory -Force "C:\Program Files\ClaudeCode" | Out-Null
-[IO.File]::WriteAllText("C:\Program Files\ClaudeCode\managed-settings.json", "{`n  `"forceLoginMethod`": `"gateway`",`n  `"forceLoginGatewayUrl`": `"$gw`"`n}`n")
-Get-Content "C:\Program Files\ClaudeCode\managed-settings.json"
+| 항목 | 값 |
+| --- | --- |
+| 경로 | `C:\Program Files\ClaudeCode\managed-settings.json` |
+| 읽지 않는 예전 경로 | `C:\ProgramData\ClaudeCode\managed-settings.json` |
+
+```json
+{
+  "forceLoginMethod": "gateway",
+  "forceLoginGatewayUrl": "https://<GatewayEndpoint>"
+}
 ```
 
-Windows 는 `C:\Program Files\ClaudeCode\` 만 읽고, 예전 경로 `C:\ProgramData\ClaudeCode\` 는 읽지 않습니다. 이 절차는 Windows 에서 검증하지 않았습니다.
+> [!NOTE]
+> Windows 절차는 이 가이드에서 검증하지 않았습니다. 경로와 읽는 순서는 [Deploy managed settings](https://code.claude.com/docs/en/managed-settings) 기준입니다.
 
 ### 추론 확인 순서
 1. VPN 을 연결한 채 **새** 터미널에서 `claude` 를 실행합니다. 이미 떠 있는 Claude Code 는 다시 시작해야 새 설정을 읽습니다.
@@ -168,11 +174,7 @@ macOS:
 sudo rm "/Library/Application Support/ClaudeCode/managed-settings.json"
 ```
 
-Windows (관리자 PowerShell):
-
-```powershell
-Remove-Item "C:\Program Files\ClaudeCode\managed-settings.json"
-```
+Windows 는 `C:\Program Files\ClaudeCode\managed-settings.json` 파일을 지웁니다.
 </details>
 
 다음: [7. 관리 콘솔 사용법](07-admin-console.md)
