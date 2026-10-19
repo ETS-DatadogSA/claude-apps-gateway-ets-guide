@@ -112,6 +112,27 @@ ClaudeGatewayAdminConsoleStack.AdminConsoleEndpoint = https://cl-yyyyyyyyyyyyyyy
 
 마지막 `ClaudeGatewayAdminConsoleStack` 의 `✅` 와 `Total time` 이 나오고 프롬프트로 돌아오면 끝입니다.
 
+### 콘솔에서 확인하는 방법
+**CloudFormation → 스택**에서 `ClaudeGateway` 로 검색하면 7개 스택이 모두 `CREATE_COMPLETE` 입니다. 다시 실행해 한 번 더 배포된 스택은 `UPDATE_COMPLETE` 로 나옵니다.
+
+![CloudFormation 스택 목록](images/04-cfn-stacks.png)
+
+**Amazon ECS → 클러스터 → default → 서비스**에 게이트웨이(`claudegatewaystack-gateway`)와 관리 콘솔(`claudegatewayadminconsolestack-console`) 서비스가 `활성`, `1/1 태스크 실행 중`으로 보입니다.
+
+![ECS 서비스](images/04-ecs-services.png)
+
+<details>
+<summary>빌드된 이미지와 데이터베이스 확인</summary>
+
+**Amazon ECR → 프라이빗 리포지토리**에 BuildMachine 이 이미지를 푸시한 리포지토리 2개(게이트웨이, 관리 콘솔)가 있습니다.
+
+![ECR 리포지토리](images/04-ecr-repos.png)
+
+**Aurora and RDS → 데이터베이스**에 Aurora PostgreSQL 클러스터와 라이터 인스턴스가 `사용 가능`으로 보입니다. 클러스터를 열면 [2.5](02-aws-preparation.md#25-aurora-버전-확인)에서 고른 엔진 버전을 확인할 수 있습니다.
+
+![RDS 데이터베이스](images/04-rds-cluster.png)
+</details>
+
 <details>
 <summary>배포 중 화면과 스택 상태 확인</summary>
 
@@ -209,6 +230,15 @@ https://cl-yyyy.ecs.us-east-1.on.aws
 ```
 
 첫 줄이 게이트웨이, 둘째 줄이 관리 콘솔 주소입니다. `cl-` 뒤는 32자리 16진수이고, `GWEP` 는 5.2 에서 그대로 씁니다.
+
+### 콘솔에서 확인하는 방법
+**CloudFormation → 스택 → ClaudeGatewayStack → 출력** 탭의 `GatewayEndpoint` 가 게이트웨이 주소입니다. 같은 탭에 `OidcIssuer`(1.6), `AdminOktaGroupName`(1.5 의 GUID)도 있습니다.
+
+![ClaudeGatewayStack 출력](images/04-cfn-gateway-outputs.png)
+
+**ClaudeGatewayAdminConsoleStack → 출력** 탭의 `AdminConsoleEndpoint` 가 관리 콘솔 주소입니다.
+
+![ClaudeGatewayAdminConsoleStack 출력](images/04-cfn-console-outputs.png)
 
 <details>
 <summary>주소를 서비스에 따로 넣지 않아도 되는 이유</summary>
