@@ -128,6 +128,22 @@ aws bedrock list-inference-profiles --query "inferenceProfileSummaries[?starts_w
 게이트웨이 IAM 정책은 배포 Region 의 `inference-profile/us.anthropic.*` 시스템 프로파일과, 같은 계정의 application inference profile(Region 무관)만 허용합니다. `global.anthropic.*` 같은 다른 시스템 프로파일을 쓰려면 `cdk/lib/gateway-stack.ts` 의 IAM 정책도 고쳐야 하며, 이 가이드의 범위를 벗어납니다.
 </details>
 
+### 모델 구독 확인 명령어
+추론 프로파일이 있어도 계정이 그 모델의 AWS Marketplace 약관을 수락(구독)하지 않았으면 호출이 403 으로 거부됩니다. 게이트웨이 IAM 롤에는 Marketplace 권한이 없어 첫 호출 때 자동 구독도 되지 않으므로, 쓸 모델은 미리 구독합니다.
+
+```bash
+for m in anthropic.claude-opus-4-8 anthropic.claude-sonnet-4-6 anthropic.claude-haiku-4-5-20251001-v1:0; do printf "%s " "$m"; aws bedrock get-foundation-model-availability --model-id "$m" --query "agreementAvailability.status" --output text; done
+```
+
+### 모델 구독 확인 결과 예시
+```text
+anthropic.claude-opus-4-8 NOT_AVAILABLE
+anthropic.claude-sonnet-4-6 NOT_AVAILABLE
+anthropic.claude-haiku-4-5-20251001-v1:0 NOT_AVAILABLE
+```
+
+위 세 개는 배포 직후 게이트웨이가 기본으로 제공하는 모델입니다([6.4](06-verify.md#64-모델-접근)). 모두 `AVAILABLE` 이어야 하고, `NOT_AVAILABLE` 이면 Bedrock 콘솔의 **모델 카탈로그**에서 관리자 권한으로 그 모델을 구독합니다. `haiku-4-5` 는 Claude Code 가 백그라운드 작업에 쓰므로 빠뜨리지 않습니다. 구독 후 반영까지 몇 분 걸릴 수 있습니다.
+
 ## 2.5 Aurora 버전 확인
 
 `cdk/lib/database-stack.ts` 는 Aurora PostgreSQL `VER_16_6` 으로 고정돼 있습니다. Region 에 `16.6` 이 없으면 database 스택 배포가 실패하므로 미리 확인합니다.

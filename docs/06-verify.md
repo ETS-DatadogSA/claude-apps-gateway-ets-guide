@@ -111,7 +111,7 @@ curl -s -H "Authorization: Bearer <관리자의 게이트웨이 토큰>" "$GWEP/
 배포 직후 기본으로 제공되는 모델은 `claude-opus-4-8`, `claude-sonnet-4-6`, `claude-haiku-4-5` 세 개입니다(`cdk/lib/gateway-stack.ts` 의 `AVAILABLE_MODELS_RAW`). 이 세 개가 `Offered` 이고 나머지는 `Not offered` 이면 됩니다.
 
 > [!TIP]
-> 자주 바꿀 설정이 아닙니다. 바꾸면 게이트웨이가 재배포되는 동안 몇 분간 이전 목록이 보일 수 있습니다.
+> 자주 바꿀 설정이 아닙니다. 바꾸면 게이트웨이가 재배포되는 동안 몇 분간 이전 목록이 보일 수 있습니다. Claude Code 는 게이트웨이 설정을 시작할 때와 1시간마다 받아 오므로, 목록을 바꾼 뒤에는 Claude Code 를 다시 시작해야 새 목록을 씁니다. 목록에 넣는 모델은 [2.4](02-aws-preparation.md#24-bedrock-추론-프로파일-확인)대로 계정에서 구독돼 있어야 합니다.
 
 ## 6.5 실제 추론
 
@@ -157,7 +157,8 @@ Windows 는 아래 경로에 같은 내용의 파일을 만듭니다. `C:\Progra
 > Windows 절차는 이 가이드에서 검증하지 않았습니다. 경로와 읽는 순서는 [Deploy managed settings](https://code.claude.com/docs/en/managed-settings) 기준입니다.
 
 ### 추론 확인 순서
-1. VPN 을 연결한 채 **새** 터미널에서 `claude` 를 실행합니다. 이미 떠 있는 Claude Code 는 다시 시작해야 새 설정을 읽습니다.
+0. 6.4 에서 `Offered` 인 모델이 계정에서 구독돼 있는지 [2.4](02-aws-preparation.md#24-bedrock-추론-프로파일-확인)의 모델 구독 확인 명령으로 봅니다. 구독되지 않은 모델로 요청하면 403 으로 실패합니다.
+1. VPN 을 연결한 채 **새** 터미널에서 `claude` 를 실행합니다. 이미 떠 있는 Claude Code 는 다시 시작해야 새 설정과 모델 목록을 읽습니다.
 2. `/status` 의 `Setting sources` 에 `Enterprise managed settings (file)` 이 있는지 봅니다.
 3. "Trust gateway" 프롬프트의 호스트명이 방금 배포한 게이트웨이(`cl-….ecs.us-east-1.on.aws`)인지 확인합니다.
 4. device 인증을 승인하고(6.2 와 같은 흐름) 프롬프트를 하나 실행합니다.
