@@ -110,6 +110,27 @@ unset AWS_PROFILE && eval "$(aws configure export-credentials --profile <admin-p
 aws bedrock list-inference-profiles --query "inferenceProfileSummaries[?starts_with(inferenceProfileId,'us.anthropic')].inferenceProfileId" --output table
 ```
 
+### 추론 프로파일 확인 결과 예시
+2026-10-19 us-east-1 기준입니다. 목록은 계정의 모델 액세스에 따라 다릅니다.
+
+```text
+--------------------------------------------------
+|              ListInferenceProfiles             |
++------------------------------------------------+
+|  us.anthropic.claude-3-sonnet-20240229-v1:0    |
+|  us.anthropic.claude-3-haiku-20240307-v1:0     |
+|  us.anthropic.claude-opus-4-1-20250805-v1:0    |
+...
+|  us.anthropic.claude-fable-5-1                 |
+|  us.anthropic.claude-opus-5-5                  |
+|  us.anthropic.claude-sonnet-5-5                |
+|  us.anthropic.claude-haiku-5-5                 |
+...
++------------------------------------------------+
+```
+
+`us.anthropic.` 으로 시작하는 항목이 하나 이상 나오면 됩니다.
+
 > [!WARNING]
 > `us.anthropic.*` 프로파일이 없는 리전(예: `ap-northeast-2`)에서는 **배포는 성공하고 추론이 실패**합니다. 이 경우 application inference profile 을 만들어 쓰면 IAM 수정 없이 해결됩니다([8장](08-custom-inference-profile.md)).
 
@@ -128,6 +149,30 @@ aws bedrock list-inference-profiles --query "inferenceProfileSummaries[?starts_w
 aws rds describe-db-engine-versions --engine aurora-postgresql --region us-east-1 --query "DBEngineVersions[?starts_with(EngineVersion,'16.')].EngineVersion" --output json
 ```
 
-결과에 `16.6` 이 없으면 [10장](10-troubleshooting.md#aurora-버전-없음)대로 버전을 올립니다. 2026-09-18 us-east-1 에서 실제로 발생했습니다(`16.6-limitless` 만 남음).
+### Aurora 버전 확인 결과 예시
+2026-10-19 us-east-1 기준입니다.
+
+```json
+[
+    "16.4-limitless",
+    "16.6-limitless",
+    "16.8",
+    "16.8-limitless",
+    "16.9",
+    "16.9-limitless",
+    "16.10",
+    "16.10-limitless",
+    "16.11",
+    "16.11-limitless",
+    "16.13",
+    "16.13-limitless",
+    "16.14",
+    "16.15"
+]
+```
+
+> [!WARNING]
+> 결과에 `"16.6"` 이 없으면(`16.6-limitless` 만 있으면) database 스택이 실패합니다. [10장](10-troubleshooting.md#aurora-버전-없음)대로 버전을 올립니다. \
+> 2026-09-18 과 2026-10-19 us-east-1 에서 모두 `16.6` 이 없었고, 리전과 CDK(`aws-cdk-lib 2.261.0`) 양쪽에 있는 가장 높은 버전은 `VER_16_13` 이었습니다.
 
 다음: [3. Entra 용 설정값 반영](03-configure-source.md)
