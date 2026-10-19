@@ -15,7 +15,7 @@
 | 스택이 `ROLLBACK_COMPLETE` 로 남음 | CREATE 실패 스택은 업데이트 불가 | [아래](#rollback_complete-스택-정리) |
 | 배포는 됐는데 추론 실패 | 리전에 `us.anthropic.*` 프로파일이 없음 | us-east-1 배포 또는 [8장](08-custom-inference-profile.md) ([2.4](02-aws-preparation.md#24-bedrock-추론-프로파일-확인)) |
 | `/v1/messages` 에서 `400` | 모델이 허용 목록에 없음 | 콘솔 Models 에서 켬 ([7.2](07-admin-console.md#72-모델-접근)) |
-| Claude Code 에 `Model "…" is restricted by your organization's settings. Using … instead.` 후 `잘못된 요청` | 클라이언트가 예전 모델 목록을 들고 있어, 게이트웨이 목록에 없는 모델로 바꿔 요청함 | Claude Code 를 다시 시작해 새 목록을 받고 목록 안의 모델을 고름 ([6.4](06-verify.md#64-모델-접근)) |
+| Claude Code 에 `Model "…" is restricted by your organization's settings. Using … instead.` 후 `잘못된 요청` | 클라이언트가 예전 모델 목록을 들고 있어, 게이트웨이 목록에 없는 모델로 바꿔 요청함 | Claude Code 를 다시 시작해 새 목록을 받고 목록 안의 모델을 고름 ([아래](#모델-목록을-바꾼-뒤-잘못된-요청)) |
 | 게이트웨이 로그에 `bedrock upstream 403 … not authorized to perform the required AWS Marketplace actions` | 계정이 그 모델을 구독하지 않았고, 게이트웨이 롤에는 Marketplace 권한이 없음 | Bedrock 콘솔에서 모델 구독 후 몇 분 뒤 재시도 ([2.4](02-aws-preparation.md#24-bedrock-추론-프로파일-확인)) |
 
 ## 사인인은 되는데 not-authorized
@@ -40,6 +40,14 @@ fallback 이 켜져 있으면 id_token 에 실려 온 groups 가 userinfo 응답
 
 배포 중 `ClaudeGatewayDatabaseStack` 이 Aurora 엔진 버전을 찾지 못해 실패한 경우입니다. 버전 고르기와 변경 방법은 [2.5](02-aws-preparation.md#25-aurora-버전-확인)에 있습니다. \
 버전을 바꾼 뒤, 실패한 database 스택은 아래처럼 지우고 재배포합니다.
+
+## 모델 목록을 바꾼 뒤 잘못된 요청
+
+관리 콘솔에서 모델 목록을 바꾼 뒤 이미 떠 있던 Claude Code 로 요청하면 아래처럼 나옵니다. 클라이언트는 게이트웨이 설정을 시작할 때와 1시간마다 받아 오므로 예전 목록을 들고 있고, 고른 모델이 그 목록에 없으면 다른 모델로 바꿔 요청합니다. 바꾼 모델이 게이트웨이의 새 목록에 없으면 게이트웨이가 `400` 으로 거절합니다.
+
+<img src="images/10-model-restricted-notice.png" alt="Model is restricted by your organization's settings" width="420">
+
+Claude Code 를 완전히 종료했다가 다시 시작하고, `/model` 에서 [6.4](06-verify.md#64-모델-접근)에서 `Offered` 로 둔 모델을 고릅니다. 그래도 실패하면 게이트웨이 로그에 `bedrock upstream 403` 이 있는지 봅니다(모델 구독 문제, [2.4](02-aws-preparation.md#24-bedrock-추론-프로파일-확인)).
 
 ## ROLLBACK_COMPLETE 스택 정리
 

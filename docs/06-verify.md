@@ -113,6 +113,11 @@ curl -s -H "Authorization: Bearer <관리자의 게이트웨이 토큰>" "$GWEP/
 > [!TIP]
 > 자주 바꿀 설정이 아닙니다. 바꾸면 게이트웨이가 재배포되는 동안 몇 분간 이전 목록이 보일 수 있습니다. Claude Code 는 게이트웨이 설정을 시작할 때와 1시간마다 받아 오므로, 목록을 바꾼 뒤에는 Claude Code 를 다시 시작해야 새 목록을 씁니다. 목록에 넣는 모델은 [2.4](02-aws-preparation.md#24-bedrock-추론-프로파일-확인)대로 계정에서 구독돼 있어야 합니다.
 
+### 모델 목록을 바꾼 화면
+모델을 체크하고 적용하면 위쪽에 `Applied N model(s). This will take effect for all developers within a few minutes.` 가 나오고, **Model catalog** 오른쪽 상태가 `Applying...` 으로 바뀝니다. 게이트웨이 재배포가 끝나면 `Active` 로 돌아옵니다.
+
+![모델 목록 적용 중](images/06-console-models-applied.png)
+
 ## 6.5 실제 추론
 
 개발자 PC 의 Claude Code 가 게이트웨이로 로그인하고, 게이트웨이를 거쳐 Bedrock 으로 추론하는지 확인합니다. Claude Code 는 게이트웨이 주소를 OS 의 **managed settings**(관리자 정책 파일)에서만 읽으므로 그 파일을 씁니다.
@@ -161,7 +166,12 @@ Windows 는 아래 경로에 같은 내용의 파일을 만듭니다. `C:\Progra
 1. VPN 을 연결한 채 **새** 터미널에서 `claude` 를 실행합니다. 이미 떠 있는 Claude Code 는 다시 시작해야 새 설정과 모델 목록을 읽습니다.
 2. `/status` 의 `Setting sources` 에 `Enterprise managed settings (file)` 이 있는지 봅니다.
 3. "Trust gateway" 프롬프트의 호스트명이 방금 배포한 게이트웨이(`cl-….ecs.us-east-1.on.aws`)인지 확인합니다.
-4. device 인증을 승인하고(6.2 와 같은 흐름) 프롬프트를 하나 실행합니다.
+4. device 인증을 승인합니다. Claude Code 가 연 브라우저 탭의 **Approve sign-in?** 에서 코드가 터미널에 보이는 코드와 같은지 확인하고 **This matches my device — continue** 를 누릅니다. 이어서 Entra 로그인(6.2 와 같은 흐름)을 마치면 `You're signed in.` 이 나오고 탭을 닫아도 됩니다. 그다음 프롬프트를 하나 실행합니다.
+
+   ![Claude Code device 승인](images/06-cli-device-approve.png)
+
+   <img src="images/06-cli-signed-in.png" alt="You're signed in" width="420">
+
 5. 관리 콘솔 **Effective spend** 에 로그인한 사용자와 사용액이 나타나는지 봅니다. 추론은 Audit log 에 남지 않습니다.
 
 <details>
