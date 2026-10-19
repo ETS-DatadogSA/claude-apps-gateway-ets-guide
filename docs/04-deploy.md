@@ -19,22 +19,78 @@ cd cdk
 
 ## 4.1 bootstrap
 
-계정·리전당 한 번입니다. bootstrap 에도 컨텍스트가 필요합니다(없으면 `Missing required context values`).
+CDK 가 배포에 쓰는 S3 버킷·ECR·IAM 롤(`CDKToolkit` 스택)을 계정·리전당 한 번 만듭니다. bootstrap 에도 컨텍스트가 필요합니다(없으면 `Missing required context values`).
 
+### bootstrap 명령어
 ```bash
 npx cdk bootstrap "aws://$(aws sts get-caller-identity --query Account --output text)/us-east-1" -c oidcIssuer="$ISSUER" -c oidcClientId="$APP" -c oidcClientSecret="$SECRET" -c adminOktaGroupName="$GRP"
 ```
+
+### bootstrap 결과 예시
+이미 bootstrap 한 계정·리전이면 `(no changes)` 로 끝납니다. 처음이면 `CDKToolkit` 스택을 만드는 진행 줄이 이어진 뒤 `bootstrapped` 로 끝납니다.
+
+```text
+ ⏳  Bootstrapping environment aws://123456789012/us-east-1...
+Trusted accounts for deployment: (none)
+Trusted accounts for lookup: (none)
+Using default execution policy of 'arn:aws:iam::aws:policy/AdministratorAccess'. Pass '--cloudformation-execution-policies' to customize.
+✅  Environment aws://123456789012/us-east-1 bootstrapped (no changes).
+****************************************************
+*** Newer version of CDK is available [2.1145.0] ***
+*** Upgrade recommended (npm install -g aws-cdk) ***
+****************************************************
+```
+
+`Newer version of CDK is available` 는 안내 문구입니다. 이 리포는 `cdk/package.json` 에 고정된 CDK 를 `npx` 로 쓰므로 업그레이드하지 않습니다.
 
 `CDKToolkit` 이 `ROLLBACK_COMPLETE` 로 남으면 `iam:CreateRole` 권한 문제입니다. → [10장](10-troubleshooting.md)
 
 ## 4.2 배포
 
+스택 7개를 의존 순서대로 만듭니다.
+
+> [!TIP]
+> 배포는 25~35분 걸리고 MFA 세션은 1시간입니다. [2.3](02-aws-preparation.md#23-aws-region과-배포-자격증명-고정)의 인증을 **이 명령 바로 앞에서** 다시 실행합니다. 그 전에 [4.3](#43-컨텍스트-파일로-저장-선택)으로 변수를 파일에 저장해 두면, 배포 중 셸을 잃어도 [4.5](#45-새-셸에서-변수-복원)로 되살릴 수 있습니다.
+
+### 배포 명령어
 ```bash
 npx cdk deploy --all -c oidcIssuer="$ISSUER" -c oidcClientId="$APP" -c oidcClientSecret="$SECRET" -c adminOktaGroupName="$GRP"
 ```
 
+### 배포 시작 화면 예시
+먼저 Lambda 4개를 esbuild 로 번들링하고 템플릿을 합성한 뒤, 보안 관련 변경이 있는 스택마다 승인을 묻습니다.
+
+```text
+Bundling asset ClaudeGatewayVpnStack/ProfileAssemblerFunction/Code/Stage...
+...
+⚡ Done in 1ms
+WARNING No cross-stack-reference strength configured, defaulting to "strong". ...
+   ClaudeGatewayDatabaseStack
+...
+✨  Synthesis time: 4.49s
+
+ClaudeGatewayNetworkStack
+...
+Stack ClaudeGatewayNetworkStack
+Security Group Changes
+┌───┬─────────────────────────────────┬─────┬────────────┬─────────────────────────────────┐
+│   │ Group                           │ Dir │ Protocol   │ Peer                            │
+├───┼─────────────────────────────────┼─────┼────────────┼─────────────────────────────────┤
+│ + │ ${AdminConsoleSecurityGroup.Gro │ Out │ Everything │ Everyone (IPv4)                 │
+...
+│ + │ ${DatabaseSecurityGroup.GroupId │ In  │ TCP 5432   │ ${GatewayTaskSecurityGroup.Grou │
+...
+│ + │ ${VpcEndpointSecurityGroup.Grou │ In  │ TCP 443    │ ${Vpc.CidrBlock}                │
+...
+└───┴─────────────────────────────────┴─────┴────────────┴─────────────────────────────────┘
+
+"--require-approval" is enabled and stack includes security-sensitive updates: Do you wish to deploy these changes? (y/n)
+```
+
+- `Do you wish to deploy these changes? (y/n)` 에 `y` 를 입력합니다. 승인 전에는 스택이 `REVIEW_IN_PROGRESS` 로 멈춰 있고 리소스가 만들어지지 않습니다.
+- `WARNING No cross-stack-reference strength configured` 는 CDK 기능 플래그 안내이며 배포에 영향이 없습니다.
 - 25~35분 걸립니다. 대부분 Aurora 생성, 이미지 빌드, 로드밸런서 생성 시간입니다.
-- IAM 변경 승인을 한 번 묻습니다. `--require-approval never` 로 생략할 수 있습니다.
+- 보안 관련 변경이 있는 스택마다 승인을 묻습니다. `--require-approval never` 로 생략할 수 있습니다.
 - 중간에 자격증명이 만료돼도 CloudFormation 은 계속 진행됩니다. 다시 인증하고 같은 명령을 실행합니다.
 
 > [!WARNING]
@@ -50,9 +106,25 @@ npx cdk deploy --all -c oidcIssuer="$ISSUER" -c oidcClientId="$APP" -c oidcClien
 
 `cdk.context.json` 에 저장하면 이후 `bootstrap`·`deploy`·`destroy` 에서 `-c` 를 생략할 수 있습니다.
 
+### 컨텍스트 파일 저장 명령어
+뒤의 `jq` 와 `ls` 는 확인용입니다. secret 은 값 대신 길이만 보여 줍니다.
+
 ```bash
-jq -n --arg i "$ISSUER" --arg a "$APP" --arg s "$SECRET" --arg g "$GRP" '{oidcIssuer:$i, oidcClientId:$a, oidcClientSecret:$s, adminOktaGroupName:$g}' > cdk.context.json && chmod 600 cdk.context.json
+jq -n --arg i "$ISSUER" --arg a "$APP" --arg s "$SECRET" --arg g "$GRP" '{oidcIssuer:$i, oidcClientId:$a, oidcClientSecret:$s, adminOktaGroupName:$g}' > cdk.context.json && chmod 600 cdk.context.json && jq '.oidcClientSecret |= (length|tostring) + " chars"' cdk.context.json && ls -l cdk.context.json
 ```
+
+### 컨텍스트 파일 저장 결과 예시
+```text
+{
+  "oidcIssuer": "https://login.microsoftonline.com/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/v2.0",
+  "oidcClientId": "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy",
+  "oidcClientSecret": "40 chars",
+  "adminOktaGroupName": "zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz"
+}
+-rw-------@ 1 user  staff  286 Oct 19 11:29 cdk.context.json
+```
+
+네 값이 1.7 과 같고, 권한이 `-rw-------` 이면 됩니다.
 
 secret 이 평문으로 들어가므로 파일 관리에 주의합니다(`.gitignore` 대상). Windows 에서는 `chmod 600` 이 효과가 없습니다.
 
